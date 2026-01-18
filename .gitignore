@@ -1,24 +1,43 @@
-# Nestjs specific
+# compiled output
 /dist
 /node_modules
-/build
-/tmp
 
-# Logs
-logs
+# logs
 *.log
 npm-debug.log*
-pnpm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 lerna-debug.log*
 
+# OS
+.DS_Store
+
+# tests
+/coverage
+/.nyc_output
+
+# IDEs and editors
+/.idea
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+*.sublime-workspace
+/vscode
+
+# ide - VSCode
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
 # dotenv environment variable files
 .env
-.env.development
 .env.test
-.env.production
 
-# temp directory
-.temp
-.tmp
+# nest
+/dist
+
+Graduation Project (AI-Powered Smart Gym).pdf
