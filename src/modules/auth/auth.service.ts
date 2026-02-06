@@ -38,9 +38,12 @@ export class AuthService {
         const accessToken = this.jwtService.sign(payload);
         const refreshToken = this.generateRefreshToken();
 
-        // Hash and store refresh token
+        // Hash and store refresh token, update last login time
         const hashedRefreshToken = await bcrypt.hash(refreshToken, 10);
-        await this.usersService.update(user._id.toString(), { refreshToken: hashedRefreshToken });
+        await this.usersService.update(user._id.toString(), {
+            refreshToken: hashedRefreshToken,
+            lastLoginAt: new Date(),
+        });
 
         return {
             access_token: accessToken,

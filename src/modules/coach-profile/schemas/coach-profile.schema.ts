@@ -26,8 +26,17 @@ export class CoachProfile {
     @Prop({ default: 0 })
     averageRating: number;
 
+    @Prop({ default: 0 })
+    totalReviews: number;
+
     @Prop({ default: false, index: true })
     isVerified: boolean;
+
+    @Prop({ default: true })
+    isActive: boolean;
+
+    @Prop([String])
+    specializations: string[]; // Alias for specialties used in admin
 }
 
 export const CoachProfileSchema = SchemaFactory.createForClass(CoachProfile);

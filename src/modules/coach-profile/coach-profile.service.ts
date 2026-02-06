@@ -27,15 +27,19 @@ export class CoachProfileService {
     async findAll(query: any): Promise<CoachProfileDocument[]> {
         const filter: any = {};
 
-        // By default, only show verified coaches unless specific override (e.g. for Admin, not implemented here yet)
-        // For now, let's just default to verified: true if not specified? 
-        // Or assume the controller handles the logic. Let's make it flexible.
+        // Filter by specialties
         if (query.specialties) {
             filter.specialties = { $in: query.specialties.split(',') };
         }
 
-        if (query.isVerified) {
+        // Filter by verified status
+        if (query.isVerified !== undefined) {
             filter.isVerified = query.isVerified === 'true';
+        }
+
+        // Filter by minimum rating
+        if (query.minRating) {
+            filter.averageRating = { $gte: query.minRating };
         }
 
         return this.coachProfileRepository.findAll(filter, query.search);

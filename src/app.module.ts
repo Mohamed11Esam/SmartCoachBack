@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
+import { ScheduleModule as NestScheduleModule } from '@nestjs/schedule';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { DatabaseModule } from './database/database.module';
@@ -20,6 +21,10 @@ import { EmailModule } from './modules/email/email.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
 import { ProductsModule } from './modules/products/products.module';
 import { CartModule } from './modules/cart/cart.module';
+import { CoachClientModule } from './modules/coach-client/coach-client.module';
+import { PromoCodeModule } from './modules/promo-code/promo-code.module';
+import { ScheduleModule } from './modules/schedule/schedule.module';
+import { AdminModule } from './modules/admin/admin.module';
 
 @Module({
   imports: [
@@ -31,6 +36,8 @@ import { CartModule } from './modules/cart/cart.module';
       ttl: 60000,
       limit: 100,
     }]),
+    // Cron jobs scheduler
+    NestScheduleModule.forRoot(),
     DatabaseModule,
     AuthModule,
     UsersModule,
@@ -47,6 +54,10 @@ import { CartModule } from './modules/cart/cart.module';
     NotificationsModule,
     ProductsModule,
     CartModule,
+    CoachClientModule,
+    PromoCodeModule,
+    ScheduleModule,
+    AdminModule,
   ],
   controllers: [AppController],
   providers: [

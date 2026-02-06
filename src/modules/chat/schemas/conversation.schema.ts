@@ -12,10 +12,31 @@ export class Conversation {
     customerId: Types.ObjectId;
 
     @Prop()
-    lastMessage: string;
+    lastMessage?: string;
 
     @Prop()
-    lastMessageAt: Date;
+    lastMessageAt?: Date;
+
+    @Prop({ type: Types.ObjectId, ref: 'User' })
+    lastMessageSenderId?: Types.ObjectId;
+
+    @Prop({ default: 0 })
+    coachUnreadCount: number;
+
+    @Prop({ default: 0 })
+    customerUnreadCount: number;
+
+    @Prop({ default: true })
+    isActive: boolean;
+
+    @Prop()
+    coachLastSeenAt?: Date;
+
+    @Prop()
+    customerLastSeenAt?: Date;
 }
 
 export const ConversationSchema = SchemaFactory.createForClass(Conversation);
+ConversationSchema.index({ coachId: 1, customerId: 1 }, { unique: true });
+ConversationSchema.index({ coachId: 1, lastMessageAt: -1 });
+ConversationSchema.index({ customerId: 1, lastMessageAt: -1 });

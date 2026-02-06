@@ -1,0 +1,853 @@
+{
+  "info": {
+    "name": "FitGlow API",
+    "description": "FitGlow Backend API Collection",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000"
+    },
+    {
+      "key": "token",
+      "value": ""
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [{ "key": "token", "value": "{{token}}" }]
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/auth/register",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"user@example.com\",\n  \"password\": \"123456\",\n  \"firstName\": \"John\",\n  \"lastName\": \"Doe\",\n  \"role\": \"Customer\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var json = pm.response.json();",
+                  "if (json.access_token) {",
+                  "  pm.collectionVariables.set('token', json.access_token);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/auth/login",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"user@example.com\",\n  \"password\": \"123456\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Send OTP",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/auth/send-otp",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"user@example.com\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Verify OTP",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/auth/verify-otp",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"user@example.com\",\n  \"otp\": \"123456\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Forgot Password",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/auth/forgot-password",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"user@example.com\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Reset Password",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/auth/reset-password",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"user@example.com\",\n  \"otp\": \"123456\",\n  \"newPassword\": \"newpass123\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Refresh Token",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/auth/refresh",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refresh_token\": \"your_refresh_token\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/auth/logout"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Users",
+      "item": [
+        {
+          "name": "Get My Profile",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/users/me"
+          }
+        },
+        {
+          "name": "Update My Profile",
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/users/me",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"John\",\n  \"lastName\": \"Doe\",\n  \"gender\": \"Male\",\n  \"height\": 180,\n  \"weight\": 75,\n  \"fitnessGoal\": \"Gain Muscle\",\n  \"fitnessLevel\": \"Beginner\",\n  \"onboardingCompleted\": true\n}"
+            }
+          }
+        },
+        {
+          "name": "Get Saved Workouts",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/users/me/saved-workouts"
+          }
+        },
+        {
+          "name": "Save Workout",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/users/me/saved-workouts/:workoutId",
+            "variable": [{ "key": "workoutId", "value": "workout_id_here" }]
+          }
+        },
+        {
+          "name": "Unsave Workout",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/users/me/saved-workouts/:workoutId",
+            "variable": [{ "key": "workoutId", "value": "workout_id_here" }]
+          }
+        },
+        {
+          "name": "Get Saved Meals",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/users/me/saved-meals"
+          }
+        },
+        {
+          "name": "Save Meal",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/users/me/saved-meals/:mealId",
+            "variable": [{ "key": "mealId", "value": "meal_id_here" }]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Coach Profile",
+      "item": [
+        {
+          "name": "Get All Coaches",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/coach-profile?specialty=&minRating=&verifiedOnly=true",
+              "host": ["{{baseUrl}}"],
+              "path": ["coach-profile"],
+              "query": [
+                { "key": "specialty", "value": "" },
+                { "key": "minRating", "value": "" },
+                { "key": "verifiedOnly", "value": "true" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Coach by ID",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/coach-profile/:id",
+            "variable": [{ "key": "id", "value": "coach_profile_id" }]
+          }
+        },
+        {
+          "name": "Get My Coach Profile",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/coach-profile/me"
+          }
+        },
+        {
+          "name": "Update My Coach Profile",
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/coach-profile/me",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"bio\": \"Certified fitness trainer with 5 years experience\",\n  \"specialties\": [\"Weight Loss\", \"Strength Training\"],\n  \"experienceYears\": 5,\n  \"certifications\": [\"ACE\", \"NASM\"]\n}"
+            }
+          }
+        },
+        {
+          "name": "Get Coach Reviews",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/coach-profile/:id/reviews",
+            "variable": [{ "key": "id", "value": "coach_profile_id" }]
+          }
+        },
+        {
+          "name": "Submit Review",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/coach-profile/:id/reviews",
+            "variable": [{ "key": "id", "value": "coach_profile_id" }],
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"rating\": 5,\n  \"comment\": \"Great coach!\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Coach-Client",
+      "item": [
+        {
+          "name": "Send Request to Coach",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/coach-client/request",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"coachId\": \"coach_user_id\",\n  \"message\": \"I want to train with you!\",\n  \"trainingType\": \"online\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get My Requests (Client)",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/coach-client/my-requests"
+          }
+        },
+        {
+          "name": "Cancel Request",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/coach-client/request/:id",
+            "variable": [{ "key": "id", "value": "request_id" }]
+          }
+        },
+        {
+          "name": "Get My Coach",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/coach-client/my-coach"
+          }
+        },
+        {
+          "name": "Get Pending Requests (Coach)",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/coach-client/pending-requests"
+          }
+        },
+        {
+          "name": "Respond to Request (Coach)",
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/coach-client/request/:id/respond",
+            "variable": [{ "key": "id", "value": "request_id" }],
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"accepted\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get My Clients (Coach)",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/coach-client/my-clients"
+          }
+        },
+        {
+          "name": "Get Client Details (Coach)",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/coach-client/client/:clientId",
+            "variable": [{ "key": "clientId", "value": "client_user_id" }]
+          }
+        },
+        {
+          "name": "Get Coach Stats",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/coach-client/stats"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Schedule",
+      "item": [
+        {
+          "name": "Create Time Slot (Coach)",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/schedule/time-slots",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"dayOfWeek\": 1,\n  \"startTime\": \"09:00\",\n  \"endTime\": \"10:00\",\n  \"duration\": 60,\n  \"sessionType\": \"online\",\n  \"isRecurring\": true\n}"
+            }
+          }
+        },
+        {
+          "name": "Get My Time Slots (Coach)",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/schedule/time-slots"
+          }
+        },
+        {
+          "name": "Delete Time Slot (Coach)",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/schedule/time-slots/:id",
+            "variable": [{ "key": "id", "value": "slot_id" }]
+          }
+        },
+        {
+          "name": "Get Coach Availability",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/schedule/availability/:coachId?startDate=2024-01-15&endDate=2024-01-22",
+              "host": ["{{baseUrl}}"],
+              "path": ["schedule", "availability", ":coachId"],
+              "query": [
+                { "key": "startDate", "value": "2024-01-15" },
+                { "key": "endDate", "value": "2024-01-22" }
+              ],
+              "variable": [{ "key": "coachId", "value": "coach_user_id" }]
+            }
+          }
+        },
+        {
+          "name": "Book Session",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/schedule/sessions",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"coachId\": \"coach_user_id\",\n  \"scheduledDate\": \"2024-01-15\",\n  \"startTime\": \"09:00\",\n  \"endTime\": \"10:00\",\n  \"sessionType\": \"online\",\n  \"title\": \"Training Session\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get My Sessions (Client)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/schedule/sessions/client?upcoming=true",
+              "host": ["{{baseUrl}}"],
+              "path": ["schedule", "sessions", "client"],
+              "query": [{ "key": "upcoming", "value": "true" }]
+            }
+          }
+        },
+        {
+          "name": "Get My Sessions (Coach)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/schedule/sessions/coach?upcoming=true",
+              "host": ["{{baseUrl}}"],
+              "path": ["schedule", "sessions", "coach"],
+              "query": [{ "key": "upcoming", "value": "true" }]
+            }
+          }
+        },
+        {
+          "name": "Get Session by ID",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/schedule/sessions/:id",
+            "variable": [{ "key": "id", "value": "session_id" }]
+          }
+        },
+        {
+          "name": "Update Session (Coach)",
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/schedule/sessions/:id",
+            "variable": [{ "key": "id", "value": "session_id" }],
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"confirmed\",\n  \"meetingLink\": \"https://zoom.us/j/123456\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Cancel Session",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/schedule/sessions/:id",
+            "variable": [{ "key": "id", "value": "session_id" }],
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reason\": \"Cannot make it\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get Calendar (Coach)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/schedule/calendar?month=1&year=2024",
+              "host": ["{{baseUrl}}"],
+              "path": ["schedule", "calendar"],
+              "query": [
+                { "key": "month", "value": "1" },
+                { "key": "year", "value": "2024" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Schedule Stats (Coach)",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/schedule/stats"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Chat",
+      "item": [
+        {
+          "name": "Get Conversations",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/chat/conversations"
+          }
+        },
+        {
+          "name": "Start Conversation",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/chat/conversations",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"recipientId\": \"other_user_id\",\n  \"initialMessage\": \"Hello!\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get Conversation",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/chat/conversations/:id",
+            "variable": [{ "key": "id", "value": "conversation_id" }]
+          }
+        },
+        {
+          "name": "Get Messages",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/chat/conversations/:id/messages?limit=50",
+              "host": ["{{baseUrl}}"],
+              "path": ["chat", "conversations", ":id", "messages"],
+              "query": [{ "key": "limit", "value": "50" }],
+              "variable": [{ "key": "id", "value": "conversation_id" }]
+            }
+          }
+        },
+        {
+          "name": "Send Message",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/chat/conversations/:id/messages",
+            "variable": [{ "key": "id", "value": "conversation_id" }],
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"content\": \"Hello!\",\n  \"messageType\": \"text\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Mark as Read",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/chat/conversations/:id/read",
+            "variable": [{ "key": "id", "value": "conversation_id" }]
+          }
+        },
+        {
+          "name": "Get Unread Count",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/chat/unread-count"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Workouts",
+      "item": [
+        {
+          "name": "Get All Workouts",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/workouts?category=&difficulty=",
+              "host": ["{{baseUrl}}"],
+              "path": ["workouts"],
+              "query": [
+                { "key": "category", "value": "" },
+                { "key": "difficulty", "value": "" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Workout by ID",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/workouts/:id",
+            "variable": [{ "key": "id", "value": "workout_id" }]
+          }
+        },
+        {
+          "name": "Create Workout (Admin)",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/workouts",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Full Body HIIT\",\n  \"description\": \"30 min high intensity workout\",\n  \"category\": \"HIIT\",\n  \"difficulty\": \"Intermediate\",\n  \"duration\": 30,\n  \"caloriesBurn\": 300\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Nutrition",
+      "item": [
+        {
+          "name": "Get All Meals",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/nutrition?category=",
+              "host": ["{{baseUrl}}"],
+              "path": ["nutrition"],
+              "query": [{ "key": "category", "value": "" }]
+            }
+          }
+        },
+        {
+          "name": "Get Meal by ID",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/nutrition/:id",
+            "variable": [{ "key": "id", "value": "meal_id" }]
+          }
+        },
+        {
+          "name": "Create Meal (Admin)",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/nutrition",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Grilled Chicken Salad\",\n  \"description\": \"Healthy protein-rich salad\",\n  \"category\": \"Lunch\",\n  \"calories\": 350,\n  \"protein\": 40,\n  \"carbs\": 15,\n  \"fat\": 12\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Products",
+      "item": [
+        {
+          "name": "Get All Products",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/products"
+          }
+        },
+        {
+          "name": "Get Product by ID",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/products/:id",
+            "variable": [{ "key": "id", "value": "product_id" }]
+          }
+        },
+        {
+          "name": "Create Product (Admin)",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/products",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Protein Powder\",\n  \"description\": \"Whey protein 2kg\",\n  \"price\": 49.99,\n  \"category\": \"Supplements\",\n  \"stock\": 100\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Cart",
+      "item": [
+        {
+          "name": "Get Cart",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/cart"
+          }
+        },
+        {
+          "name": "Add to Cart",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/cart/items",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"productId\": \"product_id\",\n  \"quantity\": 1\n}"
+            }
+          }
+        },
+        {
+          "name": "Update Cart Item",
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/cart/items/:productId",
+            "variable": [{ "key": "productId", "value": "product_id" }],
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"quantity\": 2\n}"
+            }
+          }
+        },
+        {
+          "name": "Remove from Cart",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/cart/items/:productId",
+            "variable": [{ "key": "productId", "value": "product_id" }]
+          }
+        },
+        {
+          "name": "Apply Promo Code",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/cart/apply-promo",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"SAVE10\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Checkout",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/cart/checkout",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"shippingAddress\": {\n    \"name\": \"John Doe\",\n    \"street\": \"123 Main St\",\n    \"city\": \"Cairo\",\n    \"state\": \"Cairo\",\n    \"zipCode\": \"12345\",\n    \"country\": \"Egypt\",\n    \"phone\": \"+201234567890\"\n  }\n}"
+            }
+          }
+        },
+        {
+          "name": "Get Orders",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/cart/orders"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Notifications",
+      "item": [
+        {
+          "name": "Get Notifications",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/notifications?unreadOnly=false",
+              "host": ["{{baseUrl}}"],
+              "path": ["notifications"],
+              "query": [{ "key": "unreadOnly", "value": "false" }]
+            }
+          }
+        },
+        {
+          "name": "Get Unread Count",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/notifications/unread-count"
+          }
+        },
+        {
+          "name": "Mark as Read",
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/notifications/:id/read",
+            "variable": [{ "key": "id", "value": "notification_id" }]
+          }
+        },
+        {
+          "name": "Mark All as Read",
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/notifications/read-all"
+          }
+        },
+        {
+          "name": "Register Device Token",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/notifications/device-token",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"fcm_token_here\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Media",
+      "item": [
+        {
+          "name": "Get Presigned URL",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/media/presigned-url",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fileName\": \"photo.jpg\",\n  \"fileType\": \"image/jpeg\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin",
+      "item": [
+        {
+          "name": "Get Dashboard Stats",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/admin/stats"
+          }
+        },
+        {
+          "name": "Get Revenue Chart",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/admin/charts/revenue?period=week",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "charts", "revenue"],
+              "query": [{ "key": "period", "value": "week" }]
+            }
+          }
+        },
+        {
+          "name": "Get Users Chart",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/admin/charts/users?period=week",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "charts", "users"],
+              "query": [{ "key": "period", "value": "week" }]
+            }
+          }
+        },
+        {
+          "name": "Get Recent Activity",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/admin/activity"
+          }
+        }
+      ]
+    }
+  ]
+}

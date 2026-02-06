@@ -1,4 +1,4 @@
-import { IsString, IsOptional, IsEnum, IsNumber, IsObject } from 'class-validator';
+import { IsString, IsOptional, IsEnum, IsNumber, IsArray, IsBoolean, IsDateString } from 'class-validator';
 
 export class UpdateUserDto {
     @IsString()
@@ -13,14 +13,14 @@ export class UpdateUserDto {
     @IsOptional()
     photoUrl?: string;
 
-    @IsString()
+    @IsDateString()
     @IsOptional()
-    @IsEnum(['Beginner', 'Intermediate', 'Advanced'])
-    fitnessLevel?: string;
+    dateOfBirth?: string;
 
     @IsString()
     @IsOptional()
-    goal?: string;
+    @IsEnum(['Male', 'Female', 'Other'])
+    gender?: string;
 
     @IsNumber()
     @IsOptional()
@@ -32,13 +32,52 @@ export class UpdateUserDto {
 
     @IsString()
     @IsOptional()
-    gender?: string;
+    @IsEnum(['Lose Weight', 'Gain Muscle', 'Stay Fit', 'Build Strength', 'Improve Flexibility'])
+    fitnessGoal?: string;
+
+    @IsString()
+    @IsOptional()
+    @IsEnum(['Beginner', 'Intermediate', 'Advanced'])
+    fitnessLevel?: string;
+
+    @IsArray()
+    @IsString({ each: true })
+    @IsOptional()
+    healthConditions?: string[];
+
+    @IsString()
+    @IsOptional()
+    @IsEnum(['Home', 'Gym', 'Both'])
+    workoutLocation?: string;
+
+    @IsArray()
+    @IsString({ each: true })
+    @IsOptional()
+    preferredTrainingDays?: string[];
 
     @IsNumber()
     @IsOptional()
-    age?: number;
+    preferredWorkoutDuration?: number;
 
-    @IsObject()
+    @IsArray()
+    @IsString({ each: true })
     @IsOptional()
-    preferences?: Record<string, any>;
+    dietaryPreferences?: string[];
+
+    @IsBoolean()
+    @IsOptional()
+    onboardingCompleted?: boolean;
+
+    @IsBoolean()
+    @IsOptional()
+    emailNotifications?: boolean;
+
+    @IsBoolean()
+    @IsOptional()
+    pushNotifications?: boolean;
+
+    // Admin only
+    @IsBoolean()
+    @IsOptional()
+    isBanned?: boolean;
 }

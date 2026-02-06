@@ -14,8 +14,40 @@ export class Message {
     @Prop({ required: true })
     content: string;
 
+    @Prop({ enum: ['text', 'image', 'file', 'audio', 'system'], default: 'text' })
+    messageType: string;
+
+    @Prop()
+    fileUrl?: string;
+
+    @Prop()
+    fileName?: string;
+
+    @Prop()
+    fileSize?: number;
+
     @Prop({ default: false })
-    read: boolean;
+    isRead: boolean;
+
+    @Prop()
+    readAt?: Date;
+
+    @Prop({ default: false })
+    isDelivered: boolean;
+
+    @Prop()
+    deliveredAt?: Date;
+
+    @Prop({ default: false })
+    isDeleted: boolean;
+
+    @Prop()
+    deletedAt?: Date;
+
+    @Prop()
+    replyToId?: Types.ObjectId; // For reply feature
 }
 
 export const MessageSchema = SchemaFactory.createForClass(Message);
+MessageSchema.index({ conversationId: 1, createdAt: -1 });
+MessageSchema.index({ senderId: 1 });

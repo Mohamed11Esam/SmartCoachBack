@@ -41,3 +41,6 @@ lerna-debug.log*
 /dist
 
 Graduation Project (AI-Powered Smart Gym).pdf
+
+# UI mockups (not needed for deployment)
+/ui

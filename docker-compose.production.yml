@@ -1,0 +1,92 @@
+# ==========================================
+# SmartCoach Backend - Production Docker Compose
+# Optimized for production deployment
+# ==========================================
+
+version: '3.8'
+
+services:
+  # ===========================================
+  # API Application (Production)
+  # ===========================================
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.production
+    image: smartcoach-backend:latest
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env.production
+    environment:
+      - NODE_ENV=production
+    volumes:
+      - ./config/firebase-credentials.json:/app/config/firebase-credentials.json:ro
+    networks:
+      - smartcoach-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3000/', (r) => process.exit(r.statusCode === 200 ? 0 : 1))"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 4G
+        reservations:
+          cpus: '0.5'
+          memory: 1G
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "5"
+
+  # ===========================================
+  # Redis (Required for WebSocket in production)
+  # ===========================================
+  redis:
+    image: redis:7-alpine
+    volumes:
+      - redis_data:/data
+    networks:
+      - smartcoach-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+    command: redis-server --appendonly yes
+
+# ===========================================
+# Networks
+# ===========================================
+networks:
+  smartcoach-network:
+    driver: bridge
+
+# ===========================================
+# Volumes
+# ===========================================
+volumes:
+  redis_data:
+    driver: local
+
+# ===========================================
+# Usage:
+# ===========================================
+# 1. Create .env.production with all required variables
+# 2. Place firebase-credentials.json in ./config/
+# 3. Build: docker-compose -f docker-compose.production.yml build
+# 4. Deploy: docker-compose -f docker-compose.production.yml up -d
+# 5. Logs: docker-compose -f docker-compose.production.yml logs -f api
+# ===========================================

@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
@@ -7,6 +7,8 @@ import { ChatService } from './chat.service';
 import { Conversation, ConversationSchema } from './schemas/conversation.schema';
 import { Message, MessageSchema } from './schemas/message.schema';
 import { ChatController } from './chat.controller';
+import { NotificationsModule } from '../notifications/notifications.module';
+import { UsersModule } from '../users/users.module';
 
 @Module({
     imports: [
@@ -21,6 +23,8 @@ import { ChatController } from './chat.controller';
             }),
             inject: [ConfigService],
         }),
+        forwardRef(() => NotificationsModule),
+        forwardRef(() => UsersModule),
     ],
     controllers: [ChatController],
     providers: [ChatGateway, ChatService],

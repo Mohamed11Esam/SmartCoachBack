@@ -3,9 +3,15 @@ import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import { GlobalExceptionFilter } from './common/filters/http-exception.filter';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import helmet from 'helmet';
+import compression from 'compression';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, { rawBody: true });
+
+  // Security middleware
+  app.use(helmet());
+  app.use(compression());
 
   // Global validation pipe with whitelist to strip unknown properties
   app.useGlobalPipes(new ValidationPipe({
@@ -36,8 +42,9 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
 
-  await app.listen(3000);
-  console.log(`🚀 Application running on: http://localhost:3000`);
-  console.log(`📚 Swagger docs available at: http://localhost:3000/api`);
+  const port = process.env.PORT || 3000;
+  await app.listen(port);
+  console.log(`🚀 Application running on port ${port}`);
+  console.log(`📚 Swagger docs available at /api`);
 }
 bootstrap();

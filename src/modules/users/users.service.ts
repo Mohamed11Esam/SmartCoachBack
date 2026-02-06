@@ -67,4 +67,29 @@ export class UsersService {
             newUsersThisMonth
         };
     }
+
+    // Saved items methods
+    async saveWorkout(userId: string, workoutId: string) {
+        return this.usersRepository.addSavedWorkout(userId, workoutId);
+    }
+
+    async unsaveWorkout(userId: string, workoutId: string) {
+        return this.usersRepository.removeSavedWorkout(userId, workoutId);
+    }
+
+    async saveMeal(userId: string, mealId: string) {
+        return this.usersRepository.addSavedMeal(userId, mealId);
+    }
+
+    async unsaveMeal(userId: string, mealId: string) {
+        return this.usersRepository.removeSavedMeal(userId, mealId);
+    }
+
+    async getSavedItems(userId: string) {
+        const user = await this.usersRepository.getSavedItems(userId);
+        return {
+            savedWorkouts: user?.savedWorkouts || [],
+            savedMeals: user?.savedMeals || [],
+        };
+    }
 }

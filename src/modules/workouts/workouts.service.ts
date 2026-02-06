@@ -11,20 +11,40 @@ export class WorkoutsService {
 
     async findAll(query: any = {}): Promise<FreeWorkout[]> {
         const filter: any = {};
-        if (query.difficulty) filter.difficulty = query.difficulty;
-        if (query.tags) filter.tags = { $in: query.tags.split(',') };
-        if (query.minDuration) filter.duration = { $gte: Number(query.minDuration) };
-        if (query.maxDuration) filter.duration = { ...filter.duration, $lte: Number(query.maxDuration) };
-        if (query.minCalories) filter.calories = { $gte: Number(query.minCalories) };
-        if (query.maxCalories) filter.calories = { ...filter.calories, $lte: Number(query.maxCalories) };
 
+        // Category filter (Strength, Cardio, Yoga, etc.)
+        if (query.category) filter.category = query.category;
+
+        // Difficulty filter
+        if (query.difficulty) filter.difficulty = query.difficulty;
+
+        // Tags filter
+        if (query.tags) filter.tags = { $in: query.tags.split(',') };
+
+        // Duration range
+        if (query.minDuration || query.maxDuration) {
+            filter.duration = {};
+            if (query.minDuration) filter.duration.$gte = Number(query.minDuration);
+            if (query.maxDuration) filter.duration.$lte = Number(query.maxDuration);
+        }
+
+        // Calories range
+        if (query.minCalories || query.maxCalories) {
+            filter.calories = {};
+            if (query.minCalories) filter.calories.$gte = Number(query.minCalories);
+            if (query.maxCalories) filter.calories.$lte = Number(query.maxCalories);
+        }
+
+        // Text search
         if (query.search) {
             filter.$or = [
                 { title: { $regex: query.search, $options: 'i' } },
                 { description: { $regex: query.search, $options: 'i' } },
+                { tags: { $regex: query.search, $options: 'i' } },
             ];
         }
-        return this.workoutModel.find(filter).exec();
+
+        return this.workoutModel.find(filter).sort({ createdAt: -1 }).exec();
     }
 
     async findOne(id: string): Promise<FreeWorkout | null> {

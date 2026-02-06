@@ -1,122 +1,191 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import Stripe from 'stripe';
 import { UsersService } from '../users/users.service';
+import { SUBSCRIPTION_PLANS, getSubscriptionPlanById } from '../../config/subscription-plans.config';
 
 @Injectable()
 export class PaymentsService {
-    private stripe: Stripe;
+    private isDev: boolean;
 
     constructor(
         private configService: ConfigService,
         private usersService: UsersService,
     ) {
-        this.stripe = new Stripe(this.configService.getOrThrow<string>('STRIPE_SECRET_KEY'), {
-            apiVersion: '2025-11-17.clover' as any, // Explicitly cast if needed, but the string matches the error message requirement
-        });
+        this.isDev = this.configService.get('NODE_ENV') !== 'production';
     }
 
+    // ── Mock Subscription Flow (for dev/demo) ──
+
+    async mockCreateCheckoutSession(userId: string, planId: string, coachId?: string) {
+        const plan = getSubscriptionPlanById(planId);
+        if (!plan) {
+            throw new Error('Invalid plan');
+        }
+
+        // Generate a fake session ID
+        const sessionId = `mock_session_${Date.now()}_${Math.random().toString(36).slice(2)}`;
+        const baseUrl = this.configService.get('APP_URL') || 'http://localhost:3000';
+
+        return {
+            sessionId,
+            url: `${baseUrl}/payments/mock-success?sessionId=${sessionId}&userId=${userId}&planId=${planId}&coachId=${coachId || ''}`,
+            plan: {
+                id: plan.id,
+                name: plan.name,
+                price: plan.price,
+                currency: plan.currency,
+                interval: plan.interval,
+            },
+        };
+    }
+
+    async mockConfirmSubscription(userId: string, planId: string, coachId?: string) {
+        const plan = getSubscriptionPlanById(planId);
+        if (!plan) {
+            throw new Error('Invalid plan');
+        }
+
+        const subscriptionId = `mock_sub_${Date.now()}`;
+
+        // Update user's subscription status in the database
+        await this.usersService.updateSubscription(
+            userId,
+            'active',
+            subscriptionId,
+            coachId,
+        );
+
+        const user = await this.usersService.findById(userId);
+
+        return {
+            success: true,
+            subscription: {
+                id: subscriptionId,
+                planId: plan.id,
+                planName: plan.name,
+                price: plan.price,
+                currency: plan.currency,
+                interval: plan.interval,
+                status: 'active',
+                coachId: coachId || null,
+                startDate: new Date().toISOString(),
+                currentPeriodEnd: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+            },
+            user: {
+                _id: user._id,
+                email: user.email,
+                subscriptionStatus: 'active',
+            },
+        };
+    }
+
+    async mockCancelSubscription(userId: string) {
+        await this.usersService.updateSubscription(userId, 'canceled');
+
+        return {
+            success: true,
+            message: 'Subscription canceled successfully',
+            status: 'canceled',
+        };
+    }
+
+    async getSubscriptionStatus(userId: string) {
+        const user = await this.usersService.findById(userId);
+
+        return {
+            subscriptionStatus: user.subscriptionStatus || 'none',
+            subscribedCoachId: (user as any).subscribedCoachId || null,
+            subscriptionId: (user as any).subscriptionId || null,
+        };
+    }
+
+    // ── Real Stripe (only used in production) ──
+
     async createCustomer(email: string, name: string) {
-        return this.stripe.customers.create({ email, name });
+        if (this.isDev) {
+            return { id: `mock_cus_${Date.now()}` };
+        }
+        const Stripe = require('stripe');
+        const stripe = new Stripe(this.configService.get('STRIPE_SECRET_KEY'));
+        return stripe.customers.create({ email, name });
     }
 
     async createCheckoutSession(customerId: string, priceId: string, coachId: string) {
-        return this.stripe.checkout.sessions.create({
+        if (this.isDev) {
+            const baseUrl = this.configService.get('APP_URL') || 'http://localhost:3000';
+            return {
+                id: `mock_session_${Date.now()}`,
+                url: `${baseUrl}/payments/mock-success`,
+            };
+        }
+        const Stripe = require('stripe');
+        const stripe = new Stripe(this.configService.get('STRIPE_SECRET_KEY'));
+        return stripe.checkout.sessions.create({
             customer: customerId,
             mode: 'subscription',
             line_items: [{ price: priceId, quantity: 1 }],
-            success_url: this.configService.get('STRIPE_SUCCESS_URL') || 'http://localhost:3000/success',
-            cancel_url: this.configService.get('STRIPE_CANCEL_URL') || 'http://localhost:3000/cancel',
+            success_url: this.configService.get('STRIPE_SUCCESS_URL'),
+            cancel_url: this.configService.get('STRIPE_CANCEL_URL'),
             metadata: { coachId },
         });
     }
 
     constructEventFromPayload(signature: string, payload: Buffer) {
-        return this.stripe.webhooks.constructEvent(
+        const Stripe = require('stripe');
+        const stripe = new Stripe(this.configService.get('STRIPE_SECRET_KEY'));
+        return stripe.webhooks.constructEvent(
             payload,
             signature,
-            this.configService.getOrThrow<string>('STRIPE_WEBHOOK_SECRET'),
+            this.configService.get('STRIPE_WEBHOOK_SECRET'),
         );
     }
 
-    async handleWebhook(event: Stripe.Event) {
+    async handleWebhook(event: any) {
         try {
             switch (event.type) {
                 case 'checkout.session.completed':
-                    const session = event.data.object as Stripe.Checkout.Session;
-                    await this.handleCheckoutSessionCompleted(session);
+                    await this.handleCheckoutSessionCompleted(event.data.object);
                     break;
                 case 'customer.subscription.deleted':
-                    const subscription = event.data.object as Stripe.Subscription;
-                    await this.handleSubscriptionDeleted(subscription);
+                    await this.handleSubscriptionDeleted(event.data.object);
                     break;
                 case 'customer.subscription.updated':
-                    const updatedSub = event.data.object as Stripe.Subscription;
-                    await this.handleSubscriptionUpdated(updatedSub);
+                    await this.handleSubscriptionUpdated(event.data.object);
                     break;
                 default:
                     console.log(`Unhandled event type ${event.type}`);
             }
-        } catch (error) {
+        } catch (error: any) {
             console.error('Webhook Error:', error.message);
-            // Don't throw to avoid retries for non-critical errors
         }
     }
 
-    private async handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) {
-        const customerId = session.customer as string;
-        const subscriptionId = session.subscription as string;
+    private async handleCheckoutSessionCompleted(session: any) {
+        const customerId = session.customer;
+        const subscriptionId = session.subscription;
         const coachId = session.metadata?.coachId;
 
-        console.log(`💰 Payment successful for customer ${customerId}, coach ${coachId}`);
-
-        // Find user by Stripe Customer ID
         let user = await this.usersService.findByStripeCustomerId(customerId);
-
-        // If not found by ID (maybe first time?), try email
         if (!user && session.customer_details?.email) {
             user = await this.usersService.findByEmail(session.customer_details.email);
-            // TODO: Link customer ID to user if found?
         }
 
         if (user) {
-            await this.usersService.updateSubscription(
-                user._id.toString(),
-                'active',
-                subscriptionId,
-                coachId
-            );
-        } else {
-            console.warn(`⚠️ User not found for checkout session: ${session.id}`);
+            await this.usersService.updateSubscription(user._id.toString(), 'active', subscriptionId, coachId);
         }
     }
 
-    private async handleSubscriptionDeleted(subscription: Stripe.Subscription) {
-        const customerId = subscription.customer as string;
-        const user = await this.usersService.findByStripeCustomerId(customerId);
-
+    private async handleSubscriptionDeleted(subscription: any) {
+        const user = await this.usersService.findByStripeCustomerId(subscription.customer);
         if (user) {
-            await this.usersService.updateSubscription(
-                user._id.toString(),
-                'canceled',
-                subscription.id,
-                undefined // Remove coach access
-            );
-            console.log(`❌ Subscription canceled for user ${user._id}`);
+            await this.usersService.updateSubscription(user._id.toString(), 'canceled', subscription.id);
         }
     }
 
-    private async handleSubscriptionUpdated(subscription: Stripe.Subscription) {
-        const customerId = subscription.customer as string;
-        const user = await this.usersService.findByStripeCustomerId(customerId);
-
+    private async handleSubscriptionUpdated(subscription: any) {
+        const user = await this.usersService.findByStripeCustomerId(subscription.customer);
         if (user) {
-            await this.usersService.updateSubscription(
-                user._id.toString(),
-                subscription.status, // e.g., 'past_due', 'active'
-                subscription.id
-            );
-            console.log(`🔄 Subscription updated for user ${user._id}: ${subscription.status}`);
+            await this.usersService.updateSubscription(user._id.toString(), subscription.status, subscription.id);
         }
     }
 }

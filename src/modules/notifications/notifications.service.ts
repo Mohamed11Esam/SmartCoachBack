@@ -14,7 +14,7 @@ export class NotificationsService {
         private readonly emailService: EmailService,
         private readonly usersService: UsersService,
         private readonly firebaseService: FirebaseService,
-    ) { }
+    ) {}
 
     async create(
         userId: string,
@@ -23,6 +23,7 @@ export class NotificationsService {
         body: string,
         data?: Record<string, any>,
         sendEmail: boolean = false,
+        actionUrl?: string,
     ): Promise<NotificationDocument> {
         // Save to database
         const notification = await this.notificationsRepository.create({
@@ -31,6 +32,7 @@ export class NotificationsService {
             title,
             body,
             data,
+            actionUrl,
             read: false,
         });
 
@@ -52,6 +54,7 @@ export class NotificationsService {
                     {
                         type,
                         notificationId: notification._id.toString(),
+                        actionUrl,
                         ...data
                     }
                 );
@@ -102,36 +105,349 @@ export class NotificationsService {
         return this.notificationsRepository.permanentlyDelete(notificationId);
     }
 
-    // Convenience methods for triggering notifications
-    async notifyNewMessage(userId: string, senderName: string, chatId: string): Promise<void> {
+    // ══════════════════════════════════════════════════════════════════════════════
+    // MESSAGE NOTIFICATIONS
+    // ══════════════════════════════════════════════════════════════════════════════
+
+    async notifyNewMessage(
+        userId: string,
+        senderName: string,
+        conversationId: string,
+        messagePreview: string,
+    ): Promise<void> {
+        const preview = messagePreview.length > 50
+            ? messagePreview.substring(0, 50) + '...'
+            : messagePreview;
+
         await this.create(
             userId,
             NotificationType.MESSAGE,
-            'New Message',
-            `You have a new message from ${senderName}`,
-            { chatId },
+            `New message from ${senderName}`,
+            preview,
+            { conversationId },
+            false,
+            `/chat/${conversationId}`,
         );
     }
 
-    async notifyPlanUpdate(userId: string, planTitle: string, planId: string): Promise<void> {
+    // ══════════════════════════════════════════════════════════════════════════════
+    // COACH-CLIENT NOTIFICATIONS
+    // ══════════════════════════════════════════════════════════════════════════════
+
+    async notifyClientRequest(
+        coachId: string,
+        clientName: string,
+        requestId: string,
+    ): Promise<void> {
+        await this.create(
+            coachId,
+            NotificationType.CLIENT_REQUEST,
+            'New Client Request',
+            `${clientName} wants to train with you`,
+            { requestId },
+            true,
+            `/clients/requests`,
+        );
+    }
+
+    async notifyRequestAccepted(
+        clientId: string,
+        coachName: string,
+    ): Promise<void> {
+        await this.create(
+            clientId,
+            NotificationType.REQUEST_ACCEPTED,
+            'Request Accepted!',
+            `${coachName} has accepted your coaching request`,
+            {},
+            true,
+            `/my-coach`,
+        );
+    }
+
+    async notifyRequestRejected(
+        clientId: string,
+        coachName: string,
+        reason?: string,
+    ): Promise<void> {
+        await this.create(
+            clientId,
+            NotificationType.REQUEST_REJECTED,
+            'Request Declined',
+            reason
+                ? `${coachName} declined your request: ${reason}`
+                : `${coachName} is not available at this time`,
+            {},
+            false,
+            `/coaches`,
+        );
+    }
+
+    // ══════════════════════════════════════════════════════════════════════════════
+    // SESSION NOTIFICATIONS
+    // ══════════════════════════════════════════════════════════════════════════════
+
+    async notifySessionBooked(
+        coachId: string,
+        clientName: string,
+        sessionId: string,
+        date: string,
+        time: string,
+    ): Promise<void> {
+        await this.create(
+            coachId,
+            NotificationType.SESSION_BOOKED,
+            'New Session Booked',
+            `${clientName} booked a session for ${date} at ${time}`,
+            { sessionId, date, time },
+            true,
+            `/schedule/sessions/${sessionId}`,
+        );
+    }
+
+    async notifySessionConfirmed(
+        clientId: string,
+        coachName: string,
+        sessionId: string,
+        date: string,
+        time: string,
+    ): Promise<void> {
+        await this.create(
+            clientId,
+            NotificationType.SESSION_CONFIRMED,
+            'Session Confirmed',
+            `Your session with ${coachName} on ${date} at ${time} is confirmed`,
+            { sessionId, date, time },
+            true,
+            `/sessions/${sessionId}`,
+        );
+    }
+
+    async notifySessionCanceled(
+        userId: string,
+        otherUserName: string,
+        sessionId: string,
+        date: string,
+        time: string,
+        canceledBy: 'coach' | 'client',
+        reason?: string,
+    ): Promise<void> {
+        const message = reason
+            ? `Session on ${date} at ${time} was canceled by ${otherUserName}: ${reason}`
+            : `Session on ${date} at ${time} was canceled by ${otherUserName}`;
+
         await this.create(
             userId,
-            NotificationType.PLAN_UPDATE,
-            'Plan Updated',
-            `Your plan "${planTitle}" has been updated`,
-            { planId },
-            true, // Send email for plan updates
+            NotificationType.SESSION_CANCELED,
+            'Session Canceled',
+            message,
+            { sessionId, date, time, canceledBy, reason },
+            true,
+            `/schedule`,
         );
     }
 
-    async notifyGoalCompleted(userId: string, goalType: string, goalId: string): Promise<void> {
+    async notifySessionReminder(
+        userId: string,
+        otherUserName: string,
+        sessionId: string,
+        minutesUntil: number,
+    ): Promise<void> {
+        const timeText = minutesUntil === 60
+            ? '1 hour'
+            : minutesUntil === 30
+            ? '30 minutes'
+            : `${minutesUntil} minutes`;
+
+        await this.create(
+            userId,
+            NotificationType.SESSION_REMINDER,
+            'Session Reminder',
+            `Your session with ${otherUserName} starts in ${timeText}`,
+            { sessionId, minutesUntil },
+            false,
+            `/sessions/${sessionId}`,
+        );
+    }
+
+    async notifySessionStarting(
+        userId: string,
+        otherUserName: string,
+        sessionId: string,
+        meetingLink?: string,
+    ): Promise<void> {
+        await this.create(
+            userId,
+            NotificationType.SESSION_STARTING,
+            'Session Starting Now',
+            `Your session with ${otherUserName} is starting`,
+            { sessionId, meetingLink },
+            false,
+            meetingLink || `/sessions/${sessionId}`,
+        );
+    }
+
+    // ══════════════════════════════════════════════════════════════════════════════
+    // PLAN & PROGRESS NOTIFICATIONS
+    // ══════════════════════════════════════════════════════════════════════════════
+
+    async notifyPlanAssigned(
+        clientId: string,
+        coachName: string,
+        planId: string,
+        planTitle: string,
+    ): Promise<void> {
+        await this.create(
+            clientId,
+            NotificationType.PLAN_ASSIGNED,
+            'New Training Plan',
+            `${coachName} assigned you a new plan: ${planTitle}`,
+            { planId, planTitle },
+            true,
+            `/plans/${planId}`,
+        );
+    }
+
+    async notifyPlanUpdate(
+        clientId: string,
+        coachName: string,
+        planId: string,
+        planTitle: string,
+    ): Promise<void> {
+        await this.create(
+            clientId,
+            NotificationType.PLAN_UPDATE,
+            'Plan Updated',
+            `${coachName} updated your plan: ${planTitle}`,
+            { planId, planTitle },
+            false,
+            `/plans/${planId}`,
+        );
+    }
+
+    async notifyGoalCompleted(
+        userId: string,
+        goalType: string,
+        goalId: string,
+    ): Promise<void> {
         await this.create(
             userId,
             NotificationType.GOAL,
-            '🎉 Goal Achieved!',
+            'Goal Achieved!',
             `Congratulations! You've completed your ${goalType} goal!`,
-            { goalId },
-            true, // Send email for achievements
+            { goalId, goalType },
+            true,
+            `/progress`,
+        );
+    }
+
+    async notifyProgressMilestone(
+        userId: string,
+        milestone: string,
+        details: string,
+    ): Promise<void> {
+        await this.create(
+            userId,
+            NotificationType.PROGRESS_MILESTONE,
+            `Milestone: ${milestone}`,
+            details,
+            { milestone },
+            false,
+            `/progress`,
+        );
+    }
+
+    // ══════════════════════════════════════════════════════════════════════════════
+    // PAYMENT NOTIFICATIONS
+    // ══════════════════════════════════════════════════════════════════════════════
+
+    async notifyPaymentSuccess(
+        userId: string,
+        amount: number,
+        planName: string,
+    ): Promise<void> {
+        await this.create(
+            userId,
+            NotificationType.PAYMENT_SUCCESS,
+            'Payment Successful',
+            `Your payment of ${amount} for ${planName} was successful`,
+            { amount, planName },
+            true,
+            `/subscription`,
+        );
+    }
+
+    async notifyPaymentFailed(
+        userId: string,
+        reason?: string,
+    ): Promise<void> {
+        await this.create(
+            userId,
+            NotificationType.PAYMENT_FAILED,
+            'Payment Failed',
+            reason || 'Your payment could not be processed. Please update your payment method.',
+            { reason },
+            true,
+            `/subscription/payment`,
+        );
+    }
+
+    async notifySubscriptionExpiring(
+        userId: string,
+        daysRemaining: number,
+    ): Promise<void> {
+        await this.create(
+            userId,
+            NotificationType.SUBSCRIPTION_EXPIRING,
+            'Subscription Expiring Soon',
+            `Your subscription expires in ${daysRemaining} days. Renew to continue your training.`,
+            { daysRemaining },
+            true,
+            `/subscription`,
+        );
+    }
+
+    // ══════════════════════════════════════════════════════════════════════════════
+    // SYSTEM NOTIFICATIONS
+    // ══════════════════════════════════════════════════════════════════════════════
+
+    async notifyWelcome(userId: string, userName: string): Promise<void> {
+        await this.create(
+            userId,
+            NotificationType.WELCOME,
+            'Welcome to FitGlow!',
+            `Hi ${userName}! Start your fitness journey by completing your profile.`,
+            {},
+            true,
+            `/profile/setup`,
+        );
+    }
+
+    async notifyCoachVerified(coachId: string): Promise<void> {
+        await this.create(
+            coachId,
+            NotificationType.COACH_VERIFIED,
+            'Profile Verified',
+            'Your coach profile has been verified. You can now accept clients!',
+            {},
+            true,
+            `/coach/dashboard`,
+        );
+    }
+
+    async notifySystem(
+        userId: string,
+        title: string,
+        message: string,
+        data?: Record<string, any>,
+    ): Promise<void> {
+        await this.create(
+            userId,
+            NotificationType.SYSTEM,
+            title,
+            message,
+            data,
+            false,
         );
     }
 }

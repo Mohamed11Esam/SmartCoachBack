@@ -21,6 +21,53 @@ export class User {
     lastName: string;
 
     @Prop()
+    photoUrl?: string;
+
+    // Onboarding profile fields
+    @Prop()
+    dateOfBirth?: Date;
+
+    @Prop({ enum: ['Male', 'Female', 'Other'] })
+    gender?: string;
+
+    @Prop()
+    height?: number; // in cm
+
+    @Prop()
+    weight?: number; // in kg
+
+    @Prop({ enum: ['Lose Weight', 'Gain Muscle', 'Stay Fit', 'Build Strength', 'Improve Flexibility'] })
+    fitnessGoal?: string;
+
+    @Prop({ enum: ['Beginner', 'Intermediate', 'Advanced'] })
+    fitnessLevel?: string;
+
+    @Prop({ type: [String], default: [] })
+    healthConditions: string[]; // e.g., ['Back Pain', 'Knee Injury', 'Diabetes']
+
+    @Prop({ enum: ['Home', 'Gym', 'Both'] })
+    workoutLocation?: string;
+
+    @Prop({ type: [String], default: [] })
+    preferredTrainingDays: string[]; // e.g., ['Monday', 'Wednesday', 'Friday']
+
+    @Prop()
+    preferredWorkoutDuration?: number; // in minutes
+
+    @Prop({ type: [String], default: [] })
+    dietaryPreferences: string[]; // e.g., ['Vegetarian', 'Keto', 'Halal']
+
+    @Prop({ default: false })
+    onboardingCompleted: boolean;
+
+    // Saved/Bookmarked items
+    @Prop({ type: [{ type: Types.ObjectId, ref: 'FreeWorkout' }], default: [] })
+    savedWorkouts: Types.ObjectId[];
+
+    @Prop({ type: [{ type: Types.ObjectId, ref: 'FreeNutrition' }], default: [] })
+    savedMeals: Types.ObjectId[];
+
+    @Prop()
     stripeCustomerId?: string;
 
     @Prop({ type: Types.ObjectId, ref: 'CoachProfile' })
@@ -58,6 +105,9 @@ export class User {
 
     @Prop({ type: Types.ObjectId, ref: 'CoachProfile' })
     subscribedCoachId?: Types.ObjectId;
+
+    @Prop()
+    lastLoginAt?: Date;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

@@ -9,33 +9,96 @@ import type { Request } from 'express';
 @ApiTags('Payments')
 @Controller('payments')
 export class PaymentsController {
-    constructor(private readonly paymentsService: PaymentsService) { }
+    constructor(private readonly paymentsService: PaymentsService) {}
 
     @Get('plans')
     @ApiOperation({ summary: 'Get available subscription plans' })
-    @ApiResponse({ status: 200, description: 'Subscription plans returned' })
     async getPlans() {
         return SUBSCRIPTION_PLANS;
     }
+
+    // ── Mock endpoints for mobile demo ──
+
+    @Post('mock/checkout')
+    @UseGuards(JwtAuthGuard)
+    @ApiBearerAuth()
+    @ApiOperation({ summary: 'Create mock checkout session (dev/demo)' })
+    async mockCheckout(
+        @Body() body: { planId: string; coachId?: string },
+        @Req() req,
+    ) {
+        const userId = req.user.userId;
+        return this.paymentsService.mockCreateCheckoutSession(
+            userId,
+            body.planId,
+            body.coachId,
+        );
+    }
+
+    @Post('mock/confirm')
+    @UseGuards(JwtAuthGuard)
+    @ApiBearerAuth()
+    @ApiOperation({ summary: 'Confirm mock subscription (dev/demo) - activates subscription' })
+    async mockConfirm(
+        @Body() body: { planId: string; coachId?: string },
+        @Req() req,
+    ) {
+        const userId = req.user.userId;
+        return this.paymentsService.mockConfirmSubscription(
+            userId,
+            body.planId,
+            body.coachId,
+        );
+    }
+
+    @Post('mock/cancel')
+    @UseGuards(JwtAuthGuard)
+    @ApiBearerAuth()
+    @ApiOperation({ summary: 'Cancel mock subscription (dev/demo)' })
+    async mockCancel(@Req() req) {
+        const userId = req.user.userId;
+        return this.paymentsService.mockCancelSubscription(userId);
+    }
+
+    @Get('subscription-status')
+    @UseGuards(JwtAuthGuard)
+    @ApiBearerAuth()
+    @ApiOperation({ summary: 'Get current user subscription status' })
+    async getSubscriptionStatus(@Req() req) {
+        const userId = req.user.userId;
+        return this.paymentsService.getSubscriptionStatus(userId);
+    }
+
+    // ── Real Stripe endpoints (production) ──
 
     @Post('create-checkout-session')
     @UseGuards(JwtAuthGuard)
     @ApiBearerAuth()
     @ApiOperation({ summary: 'Create Stripe checkout session for subscription' })
-    @ApiResponse({ status: 200, description: 'Checkout session created' })
-    async createCheckoutSession(@Body() body: { coachId: string, priceId: string }, @Req() req) {
+    async createCheckoutSession(
+        @Body() body: { coachId: string; priceId: string },
+        @Req() req,
+    ) {
         const user = req.user;
-        // In a real implementation, we would ensure user has a stripe customer ID or create one
-        const customerId = user.stripeCustomerId || await this.paymentsService.createCustomer(user.email, `${user.firstName} ${user.lastName}`).then(c => c.id);
+        const customerId =
+            user.stripeCustomerId ||
+            (await this.paymentsService.createCustomer(user.email, `${user.firstName} ${user.lastName}`).then((c) => c.id));
 
-        const session = await this.paymentsService.createCheckoutSession(customerId, body.priceId, body.coachId);
+        const session = await this.paymentsService.createCheckoutSession(
+            customerId,
+            body.priceId,
+            body.coachId,
+        );
         return { sessionId: session.id, url: session.url };
     }
 
     @Post('webhook')
     @Public()
     @ApiOperation({ summary: 'Stripe webhook handler' })
-    async handleWebhook(@Headers('stripe-signature') signature: string, @Req() request: Request) {
+    async handleWebhook(
+        @Headers('stripe-signature') signature: string,
+        @Req() request: Request,
+    ) {
         if (!signature) {
             throw new BadRequestException('Missing stripe-signature header');
         }
@@ -51,4 +114,3 @@ export class PaymentsController {
         }
     }
 }
-

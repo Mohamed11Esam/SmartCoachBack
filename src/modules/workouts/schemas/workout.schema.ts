@@ -14,8 +14,14 @@ export class FreeWorkout {
     @Prop()
     videoUrl: string;
 
+    @Prop()
+    thumbnailUrl: string;
+
     @Prop({ required: true, enum: ['Beginner', 'Intermediate', 'Advanced'] })
     difficulty: string;
+
+    @Prop({ enum: ['Strength', 'Cardio', 'Yoga', 'Stretching', 'HIIT', 'CrossFit', 'Pilates', 'Other'] })
+    category: string;
 
     @Prop([String])
     tags: string[];
@@ -25,6 +31,9 @@ export class FreeWorkout {
 
     @Prop()
     calories: number;
+
+    @Prop({ default: 0 })
+    viewCount: number;
 }
 
 export const FreeWorkoutSchema = SchemaFactory.createForClass(FreeWorkout);

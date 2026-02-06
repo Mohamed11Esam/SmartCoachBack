@@ -11,23 +11,37 @@ export class NutritionService {
 
     async findAll(query: any = {}): Promise<FreeNutrition[]> {
         const filter: any = {};
+
+        // Meal type filter (Breakfast, Lunch, Dinner, Snack)
+        if (query.mealType) filter.mealType = query.mealType;
+
+        // Tags filter
         if (query.tags) filter.tags = { $in: query.tags.split(',') };
 
         // Calorie range
-        if (query.minCalories) filter.calories = { $gte: Number(query.minCalories) };
-        if (query.maxCalories) filter.calories = { ...filter.calories, $lte: Number(query.maxCalories) };
+        if (query.minCalories || query.maxCalories) {
+            filter.calories = {};
+            if (query.minCalories) filter.calories.$gte = Number(query.minCalories);
+            if (query.maxCalories) filter.calories.$lte = Number(query.maxCalories);
+        }
 
-        // Macro ranges
-        if (query.minProtein) filter.protein = { $gte: Number(query.minProtein) };
-        if (query.maxProtein) filter.protein = { ...filter.protein, $lte: Number(query.maxProtein) };
+        // Protein range
+        if (query.minProtein || query.maxProtein) {
+            filter.protein = {};
+            if (query.minProtein) filter.protein.$gte = Number(query.minProtein);
+            if (query.maxProtein) filter.protein.$lte = Number(query.maxProtein);
+        }
 
+        // Text search
         if (query.search) {
             filter.$or = [
                 { title: { $regex: query.search, $options: 'i' } },
                 { content: { $regex: query.search, $options: 'i' } },
+                { tags: { $regex: query.search, $options: 'i' } },
             ];
         }
-        return this.nutritionModel.find(filter).exec();
+
+        return this.nutritionModel.find(filter).sort({ createdAt: -1 }).exec();
     }
 
     async findOne(id: string): Promise<FreeNutrition | null> {

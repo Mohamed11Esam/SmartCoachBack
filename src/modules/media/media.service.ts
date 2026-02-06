@@ -1,36 +1,68 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
-import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
+import { v2 as cloudinary } from 'cloudinary';
 
 @Injectable()
 export class MediaService {
-    private s3Client: S3Client;
-    private bucketName: string;
-
     constructor(private configService: ConfigService) {
-        this.s3Client = new S3Client({
-            region: this.configService.getOrThrow<string>('AWS_REGION'),
-            credentials: {
-                accessKeyId: this.configService.getOrThrow<string>('AWS_ACCESS_KEY_ID'),
-                secretAccessKey: this.configService.getOrThrow<string>('AWS_SECRET_ACCESS_KEY'),
-            },
+        cloudinary.config({
+            cloud_name: this.configService.getOrThrow<string>('CLOUDINARY_CLOUD_NAME'),
+            api_key: this.configService.getOrThrow<string>('CLOUDINARY_API_KEY'),
+            api_secret: this.configService.getOrThrow<string>('CLOUDINARY_API_SECRET'),
         });
-        this.bucketName = this.configService.getOrThrow<string>('AWS_S3_BUCKET');
     }
 
     async getPresignedUploadUrl(fileName: string, fileType: string): Promise<{ uploadUrl: string; fileUrl: string }> {
-        const key = `uploads/${Date.now()}-${fileName}`;
+        const timestamp = Math.round(new Date().getTime() / 1000);
+        const folder = 'fitglow-uploads';
+        const publicId = `${folder}/${Date.now()}-${fileName.replace(/\.[^/.]+$/, '')}`;
 
-        const command = new PutObjectCommand({
-            Bucket: this.bucketName,
-            Key: key,
-            ContentType: fileType,
+        const signature = cloudinary.utils.api_sign_request(
+            {
+                timestamp,
+                folder,
+                public_id: publicId,
+            },
+            this.configService.getOrThrow<string>('CLOUDINARY_API_SECRET'),
+        );
+
+        const cloudName = this.configService.getOrThrow<string>('CLOUDINARY_CLOUD_NAME');
+        const resourceType = fileType.startsWith('video/') ? 'video' : 'image';
+        const uploadUrl = `https://api.cloudinary.com/v1_1/${cloudName}/${resourceType}/upload`;
+
+        // Return the upload URL and params the client needs
+        // The client will POST form-data to uploadUrl with these params
+        const fileUrl = `https://res.cloudinary.com/${cloudName}/${resourceType}/upload/${publicId}`;
+
+        return {
+            uploadUrl,
+            fileUrl,
+            // Extra fields the client needs for the upload
+            ...({
+                apiKey: this.configService.getOrThrow<string>('CLOUDINARY_API_KEY'),
+                timestamp,
+                signature,
+                publicId,
+                folder,
+            } as any),
+        };
+    }
+
+    async uploadFromBuffer(buffer: Buffer, fileName: string, fileType: string): Promise<string> {
+        const resourceType = fileType.startsWith('video/') ? 'video' : 'image';
+
+        return new Promise((resolve, reject) => {
+            cloudinary.uploader.upload_stream(
+                {
+                    resource_type: resourceType as 'image' | 'video',
+                    folder: 'fitglow-uploads',
+                    public_id: `${Date.now()}-${fileName.replace(/\.[^/.]+$/, '')}`,
+                },
+                (error, result) => {
+                    if (error) return reject(error);
+                    resolve(result!.secure_url);
+                },
+            ).end(buffer);
         });
-
-        const uploadUrl = await getSignedUrl(this.s3Client, command, { expiresIn: 3600 });
-        const fileUrl = `https://${this.bucketName}.s3.${this.configService.get('AWS_REGION')}.amazonaws.com/${key}`;
-
-        return { uploadUrl, fileUrl };
     }
 }
