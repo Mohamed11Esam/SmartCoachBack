@@ -7,6 +7,10 @@
   "variable": [
     {
       "key": "baseUrl",
+      "value": "https://exact-gwenette-fitglow-38dc47eb.koyeb.app"
+    },
+    {
+      "key": "localUrl",
       "value": "http://localhost:3000"
     },
     {

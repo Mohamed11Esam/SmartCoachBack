@@ -1,17 +1,12 @@
 # SmartCoach AI - Quick Reference
 
-## Start Services
+## Live URLs
 
-```bash
-# 1. Start AI Service (Port 8000) - SEPARATE REPO
-cd D:\SmartCoachAI
-venv\Scripts\activate
-uvicorn main:app --reload --port 8000
-
-# 2. Start NestJS Backend (Port 3000)
-cd D:\SmartCoachBack
-npm run start:dev
-```
+| Service | URL |
+|---------|-----|
+| AI Service | https://mohamedEsam1-smartcoachai.hf.space |
+| Backend API | https://exact-gwenette-fitglow-38dc47eb.koyeb.app |
+| API Docs | https://exact-gwenette-fitglow-38dc47eb.koyeb.app/api |
 
 ## API Endpoints
 
@@ -26,11 +21,11 @@ npm run start:dev
 ## Request Examples
 
 ### Chat
-```json
-POST /ai/chat
-{
-  "query": "What's a good beginner workout?"
-}
+```bash
+curl -X POST https://exact-gwenette-fitglow-38dc47eb.koyeb.app/ai/chat \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"query": "What is a good beginner workout?"}'
 ```
 
 ### Workout Plan
@@ -56,42 +51,56 @@ POST /ai/meal-plan
 }
 ```
 
-## Environment Variables
-
-### NestJS (.env)
-```
-AI_SERVICE_URL=http://localhost:8000
-```
-
-### AI Service (.env)
-```
-GEMINI_API_KEY=your-key-here
-PORT=8000
-```
-
 ## Health Checks
 
 ```bash
 # AI Service
-curl http://localhost:8000/health
+curl https://mohamedEsam1-smartcoachai.hf.space/health
 
-# NestJS
-curl http://localhost:3000/health
+# Backend API
+curl https://exact-gwenette-fitglow-38dc47eb.koyeb.app/
 ```
+
+## Direct AI Service Endpoints
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/` | GET | Health check |
+| `/health` | GET | Detailed health status |
+| `/docs` | GET | Swagger documentation |
+| `/rag/query` | POST | Direct AI chat |
+| `/rag/workout-plan` | POST | Generate workout plan |
+| `/rag/meal-plan` | POST | Generate meal plan |
+| `/rag/plan` | POST | Generate complete fitness plan |
 
 ## Troubleshooting
 
 | Issue | Solution |
 |-------|----------|
-| AI not responding | Check if AI service is running on port 8000 |
+| AI not responding | Check HF Spaces status, may need restart |
 | Auth error | Verify JWT token is valid |
-| Slow first request | Normal - model loading takes 5-10s |
-| CORS error | AI service has CORS enabled by default |
+| Slow first request | Normal - cold start takes 10-30s on free tier |
+| 500 error | Check if GEMINI_API_KEY secret is set in HF Spaces |
 
-## File Locations
+## Local Development
 
-| Component | Path |
-|-----------|------|
-| AI Service | `D:\SmartCoachAI` |
-| NestJS Backend | `D:\SmartCoachBack` |
-| AI Docs | `D:\SmartCoachBack\docs\AI_INTEGRATION.md` |
+```bash
+# 1. Start AI Service (Port 8000)
+cd D:\SmartCoachAI
+venv\Scripts\activate
+uvicorn main:app --reload --port 8000
+
+# 2. Start NestJS Backend (Port 3000)
+cd D:\SmartCoachBack
+npm run start:dev
+
+# Set in .env
+AI_SERVICE_URL=http://localhost:8000
+```
+
+## GitHub Repos
+
+| Component | Repository |
+|-----------|------------|
+| Backend | https://github.com/Mohamed11Esam/SmartCoachBack |
+| AI Service | https://github.com/Mohamed11Esam/SmartCoachAI |
