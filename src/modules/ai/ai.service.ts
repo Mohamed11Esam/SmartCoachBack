@@ -59,8 +59,16 @@ export class AiService {
 
     async generateMealPlan(preferences: any) {
         try {
+            // Transform to AI service format
+            const aiRequest = {
+                user_id: 'user',
+                goal: preferences.diet || 'maintain',
+                dietary_restrictions: preferences.allergies || [],
+                calories_target: preferences.targetCalories || 2000,
+                meals_per_day: preferences.mealsPerDay || 3,
+            };
             const { data } = await firstValueFrom(
-                this.httpService.post(`${this.aiServiceUrl}/rag/meal-plan`, { preferences }).pipe(
+                this.httpService.post(`${this.aiServiceUrl}/rag/meal-plan`, aiRequest).pipe(
                     catchError((error: AxiosError) => {
                         throw new HttpException(
                             error.response?.data || 'AI Service Error',
@@ -91,8 +99,17 @@ export class AiService {
 
     async generateWorkoutPlan(preferences: GenerateWorkoutDto) {
         try {
+            // Transform to AI service format
+            const aiRequest = {
+                user_id: 'user',
+                fitness_level: preferences.fitnessLevel?.toLowerCase() || 'beginner',
+                goal: preferences.goals?.[0] || 'strength',
+                available_equipment: preferences.equipment || [],
+                duration_minutes: preferences.duration || 45,
+                days_per_week: 3,
+            };
             const { data } = await firstValueFrom(
-                this.httpService.post(`${this.aiServiceUrl}/rag/workout-plan`, { preferences }).pipe(
+                this.httpService.post(`${this.aiServiceUrl}/rag/workout-plan`, aiRequest).pipe(
                     catchError((error: AxiosError) => {
                         throw new HttpException(
                             error.response?.data || 'AI Service Error',
