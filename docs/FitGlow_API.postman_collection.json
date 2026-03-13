@@ -1,7 +1,7 @@
 {
   "info": {
     "name": "FitGlow API",
-    "description": "FitGlow Backend API Collection",
+    "description": "FitGlow Backend API Collection - Complete",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
@@ -59,7 +59,57 @@
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"email\": \"user@example.com\",\n  \"password\": \"123456\"\n}"
+              "raw": "{\n  \"email\": \"admin@example.com\",\n  \"password\": \"password123\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Login (Coach)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var json = pm.response.json();",
+                  "if (json.access_token) {",
+                  "  pm.collectionVariables.set('token', json.access_token);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/auth/login",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"coach@example.com\",\n  \"password\": \"password123\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Login (Customer)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var json = pm.response.json();",
+                  "if (json.access_token) {",
+                  "  pm.collectionVariables.set('token', json.access_token);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/auth/login",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"user@example.com\",\n  \"password\": \"password123\"\n}"
             }
           }
         },
@@ -155,17 +205,40 @@
           }
         },
         {
-          "name": "Get Saved Workouts",
+          "name": "Get All Users (Admin)",
           "request": {
             "method": "GET",
-            "url": "{{baseUrl}}/users/me/saved-workouts"
+            "url": "{{baseUrl}}/users"
+          }
+        },
+        {
+          "name": "Get User by ID (Admin)",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/users/:id",
+            "variable": [{ "key": "id", "value": "user_id_here" }]
+          }
+        },
+        {
+          "name": "Ban User (Admin)",
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/users/:id/ban",
+            "variable": [{ "key": "id", "value": "user_id_here" }]
+          }
+        },
+        {
+          "name": "Get Saved Items",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/users/saved"
           }
         },
         {
           "name": "Save Workout",
           "request": {
             "method": "POST",
-            "url": "{{baseUrl}}/users/me/saved-workouts/:workoutId",
+            "url": "{{baseUrl}}/users/saved/workouts/:workoutId",
             "variable": [{ "key": "workoutId", "value": "workout_id_here" }]
           }
         },
@@ -173,23 +246,147 @@
           "name": "Unsave Workout",
           "request": {
             "method": "DELETE",
-            "url": "{{baseUrl}}/users/me/saved-workouts/:workoutId",
+            "url": "{{baseUrl}}/users/saved/workouts/:workoutId",
             "variable": [{ "key": "workoutId", "value": "workout_id_here" }]
-          }
-        },
-        {
-          "name": "Get Saved Meals",
-          "request": {
-            "method": "GET",
-            "url": "{{baseUrl}}/users/me/saved-meals"
           }
         },
         {
           "name": "Save Meal",
           "request": {
             "method": "POST",
-            "url": "{{baseUrl}}/users/me/saved-meals/:mealId",
+            "url": "{{baseUrl}}/users/saved/meals/:mealId",
             "variable": [{ "key": "mealId", "value": "meal_id_here" }]
+          }
+        },
+        {
+          "name": "Unsave Meal",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/users/saved/meals/:mealId",
+            "variable": [{ "key": "mealId", "value": "meal_id_here" }]
+          }
+        }
+      ]
+    },
+    {
+      "name": "AI",
+      "item": [
+        {
+          "name": "Chat with AI",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/ai/chat",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"What exercises are best for weight loss?\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Generate Fitness Plan",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/ai/plan",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userData\": {\n    \"age\": 25,\n    \"weight\": 75,\n    \"height\": 180,\n    \"fitnessLevel\": \"Intermediate\",\n    \"goals\": [\"muscle_gain\", \"endurance\"]\n  }\n}"
+            }
+          }
+        },
+        {
+          "name": "Generate Meal Plan",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/ai/meal-plan",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"diet\": \"balanced\",\n  \"targetCalories\": 2500,\n  \"allergies\": [],\n  \"mealsPerDay\": 4\n}"
+            }
+          }
+        },
+        {
+          "name": "Generate Workout Plan",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/ai/workout-plan",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fitnessLevel\": \"Intermediate\",\n  \"goals\": [\"muscle_gain\", \"fat_loss\"],\n  \"duration\": 45,\n  \"equipment\": [\"dumbbells\", \"barbell\"],\n  \"targetMuscles\": [\"chest\", \"back\", \"legs\"]\n}"
+            }
+          }
+        },
+        {
+          "name": "Get AI Chat History",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/ai/history"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Payments",
+      "item": [
+        {
+          "name": "Get Subscription Plans",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/payments/plans",
+            "auth": { "type": "noauth" }
+          }
+        },
+        {
+          "name": "Mock Checkout",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/payments/mock/checkout",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"planId\": \"pro\",\n  \"coachId\": \"coach_user_id\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Mock Confirm Subscription",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/payments/mock/confirm",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"planId\": \"pro\",\n  \"coachId\": \"coach_user_id\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Mock Cancel Subscription",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/payments/mock/cancel"
+          }
+        },
+        {
+          "name": "Get Subscription Status",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/payments/subscription-status"
+          }
+        },
+        {
+          "name": "Create Stripe Checkout Session",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/payments/create-checkout-session",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"coachId\": \"coach_user_id\",\n  \"priceId\": \"price_pro_placeholder\"\n}"
+            }
           }
         }
       ]
@@ -222,6 +419,18 @@
           }
         },
         {
+          "name": "Create Coach Profile",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/coach-profile",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"bio\": \"Certified fitness trainer\",\n  \"specialties\": [\"Weight Loss\", \"Strength Training\"],\n  \"experienceYears\": 5,\n  \"certifications\": [\"ACE\", \"NASM\"],\n  \"socialLinks\": {}\n}"
+            }
+          }
+        },
+        {
           "name": "Get My Coach Profile",
           "request": {
             "method": "GET",
@@ -229,14 +438,36 @@
           }
         },
         {
-          "name": "Update My Coach Profile",
+          "name": "Update Coach Profile",
           "request": {
             "method": "PUT",
-            "url": "{{baseUrl}}/coach-profile/me",
+            "url": "{{baseUrl}}/coach-profile/:id",
+            "variable": [{ "key": "id", "value": "coach_profile_id" }],
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"bio\": \"Certified fitness trainer with 5 years experience\",\n  \"specialties\": [\"Weight Loss\", \"Strength Training\"],\n  \"experienceYears\": 5,\n  \"certifications\": [\"ACE\", \"NASM\"]\n}"
+            }
+          }
+        },
+        {
+          "name": "Verify Coach (Admin)",
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/coach-profile/:id/verify",
+            "variable": [{ "key": "id", "value": "coach_profile_id" }]
+          }
+        },
+        {
+          "name": "Rate a Coach",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/coach-profile/:id/rate",
+            "variable": [{ "key": "id", "value": "coach_profile_id" }],
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"rating\": 5,\n  \"comment\": \"Great coach!\"\n}"
             }
           }
         },
@@ -246,19 +477,6 @@
             "method": "GET",
             "url": "{{baseUrl}}/coach-profile/:id/reviews",
             "variable": [{ "key": "id", "value": "coach_profile_id" }]
-          }
-        },
-        {
-          "name": "Submit Review",
-          "request": {
-            "method": "POST",
-            "url": "{{baseUrl}}/coach-profile/:id/reviews",
-            "variable": [{ "key": "id", "value": "coach_profile_id" }],
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"rating\": 5,\n  \"comment\": \"Great coach!\"\n}"
-            }
           }
         }
       ]
@@ -289,8 +507,8 @@
           "name": "Cancel Request",
           "request": {
             "method": "DELETE",
-            "url": "{{baseUrl}}/coach-client/request/:id",
-            "variable": [{ "key": "id", "value": "request_id" }]
+            "url": "{{baseUrl}}/coach-client/request/:requestId",
+            "variable": [{ "key": "requestId", "value": "request_id" }]
           }
         },
         {
@@ -311,8 +529,8 @@
           "name": "Respond to Request (Coach)",
           "request": {
             "method": "PUT",
-            "url": "{{baseUrl}}/coach-client/request/:id/respond",
-            "variable": [{ "key": "id", "value": "request_id" }],
+            "url": "{{baseUrl}}/coach-client/request/:requestId/respond",
+            "variable": [{ "key": "requestId", "value": "request_id" }],
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
@@ -336,10 +554,223 @@
           }
         },
         {
+          "name": "Update Client (Coach)",
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/coach-client/client/:clientId",
+            "variable": [{ "key": "clientId", "value": "client_user_id" }],
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"notes\": \"Good progress this week\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Remove Client (Coach)",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/coach-client/client/:clientId",
+            "variable": [{ "key": "clientId", "value": "client_user_id" }]
+          }
+        },
+        {
           "name": "Get Coach Stats",
           "request": {
             "method": "GET",
             "url": "{{baseUrl}}/coach-client/stats"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Plans",
+      "item": [
+        {
+          "name": "Create Plan (Coach)",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/plans",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"coachId\": \"coach_user_id\",\n  \"customerId\": \"customer_user_id\",\n  \"title\": \"Weight Loss Plan\",\n  \"description\": \"4 week cutting plan\",\n  \"startDate\": \"2026-03-01\",\n  \"endDate\": \"2026-03-29\",\n  \"workouts\": [],\n  \"nutrition\": [],\n  \"isActive\": true\n}"
+            }
+          }
+        },
+        {
+          "name": "Update Plan (Coach)",
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/plans/:id",
+            "variable": [{ "key": "id", "value": "plan_id" }],
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Updated Plan Title\",\n  \"isActive\": true\n}"
+            }
+          }
+        },
+        {
+          "name": "Get Active Plan",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/plans/active"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Progress Logs",
+      "item": [
+        {
+          "name": "Create Progress Log",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/progress-logs",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"workout\",\n  \"notes\": \"Completed full body workout\",\n  \"duration\": 45\n}"
+            }
+          }
+        },
+        {
+          "name": "Get My Progress Logs",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/progress-logs/my-logs"
+          }
+        },
+        {
+          "name": "Get Progress Stats",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/progress-logs/stats"
+          }
+        },
+        {
+          "name": "Log Metrics",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/progress-logs/metrics",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"weight\": 75,\n  \"bodyFat\": 15,\n  \"date\": \"2026-03-13\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get Metrics",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/progress-logs/metrics"
+          }
+        },
+        {
+          "name": "Create Goal",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/progress-logs/goals",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Lose 5kg\",\n  \"targetValue\": 70,\n  \"currentValue\": 75,\n  \"unit\": \"kg\",\n  \"deadline\": \"2026-06-01\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get Goals",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/progress-logs/goals"
+          }
+        },
+        {
+          "name": "Update Goal Progress",
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/progress-logs/goals/:id",
+            "variable": [{ "key": "id", "value": "goal_id" }],
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"currentValue\": 73\n}"
+            }
+          }
+        },
+        {
+          "name": "Get Logs by Plan",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/progress-logs/plan/:planId",
+            "variable": [{ "key": "planId", "value": "plan_id" }]
+          }
+        },
+        {
+          "name": "Get Log by ID",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/progress-logs/:id",
+            "variable": [{ "key": "id", "value": "log_id" }]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Promo Codes",
+      "item": [
+        {
+          "name": "Validate Promo Code",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/promo-codes/validate",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"SAVE10\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Create Promo Code (Admin)",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/promo-codes",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"SAVE20\",\n  \"discountPercent\": 20,\n  \"maxUses\": 100,\n  \"expiresAt\": \"2026-12-31\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get All Promo Codes (Admin)",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/promo-codes"
+          }
+        },
+        {
+          "name": "Update Promo Code (Admin)",
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/promo-codes/:id",
+            "variable": [{ "key": "id", "value": "promo_code_id" }],
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"maxUses\": 200\n}"
+            }
+          }
+        },
+        {
+          "name": "Delete Promo Code (Admin)",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/promo-codes/:id",
+            "variable": [{ "key": "id", "value": "promo_code_id" }]
           }
         }
       ]
@@ -351,7 +782,7 @@
           "name": "Create Time Slot (Coach)",
           "request": {
             "method": "POST",
-            "url": "{{baseUrl}}/schedule/time-slots",
+            "url": "{{baseUrl}}/schedule/slots",
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
@@ -363,15 +794,28 @@
           "name": "Get My Time Slots (Coach)",
           "request": {
             "method": "GET",
-            "url": "{{baseUrl}}/schedule/time-slots"
+            "url": "{{baseUrl}}/schedule/slots/my"
+          }
+        },
+        {
+          "name": "Update Time Slot (Coach)",
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/schedule/slots/:slotId",
+            "variable": [{ "key": "slotId", "value": "slot_id" }],
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"startTime\": \"10:00\",\n  \"endTime\": \"11:00\"\n}"
+            }
           }
         },
         {
           "name": "Delete Time Slot (Coach)",
           "request": {
             "method": "DELETE",
-            "url": "{{baseUrl}}/schedule/time-slots/:id",
-            "variable": [{ "key": "id", "value": "slot_id" }]
+            "url": "{{baseUrl}}/schedule/slots/:slotId",
+            "variable": [{ "key": "slotId", "value": "slot_id" }]
           }
         },
         {
@@ -379,12 +823,12 @@
           "request": {
             "method": "GET",
             "url": {
-              "raw": "{{baseUrl}}/schedule/availability/:coachId?startDate=2024-01-15&endDate=2024-01-22",
+              "raw": "{{baseUrl}}/schedule/availability/:coachId?startDate=2026-03-15&endDate=2026-03-22",
               "host": ["{{baseUrl}}"],
               "path": ["schedule", "availability", ":coachId"],
               "query": [
-                { "key": "startDate", "value": "2024-01-15" },
-                { "key": "endDate", "value": "2024-01-22" }
+                { "key": "startDate", "value": "2026-03-15" },
+                { "key": "endDate", "value": "2026-03-22" }
               ],
               "variable": [{ "key": "coachId", "value": "coach_user_id" }]
             }
@@ -394,11 +838,11 @@
           "name": "Book Session",
           "request": {
             "method": "POST",
-            "url": "{{baseUrl}}/schedule/sessions",
+            "url": "{{baseUrl}}/schedule/sessions/book",
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"coachId\": \"coach_user_id\",\n  \"scheduledDate\": \"2024-01-15\",\n  \"startTime\": \"09:00\",\n  \"endTime\": \"10:00\",\n  \"sessionType\": \"online\",\n  \"title\": \"Training Session\"\n}"
+              "raw": "{\n  \"coachId\": \"coach_user_id\",\n  \"scheduledDate\": \"2026-03-15\",\n  \"startTime\": \"09:00\",\n  \"endTime\": \"10:00\",\n  \"sessionType\": \"online\",\n  \"title\": \"Training Session\"\n}"
             }
           }
         },
@@ -406,40 +850,30 @@
           "name": "Get My Sessions (Client)",
           "request": {
             "method": "GET",
-            "url": {
-              "raw": "{{baseUrl}}/schedule/sessions/client?upcoming=true",
-              "host": ["{{baseUrl}}"],
-              "path": ["schedule", "sessions", "client"],
-              "query": [{ "key": "upcoming", "value": "true" }]
-            }
+            "url": "{{baseUrl}}/schedule/sessions/my"
           }
         },
         {
           "name": "Get My Sessions (Coach)",
           "request": {
             "method": "GET",
-            "url": {
-              "raw": "{{baseUrl}}/schedule/sessions/coach?upcoming=true",
-              "host": ["{{baseUrl}}"],
-              "path": ["schedule", "sessions", "coach"],
-              "query": [{ "key": "upcoming", "value": "true" }]
-            }
+            "url": "{{baseUrl}}/schedule/sessions/coach"
           }
         },
         {
           "name": "Get Session by ID",
           "request": {
             "method": "GET",
-            "url": "{{baseUrl}}/schedule/sessions/:id",
-            "variable": [{ "key": "id", "value": "session_id" }]
+            "url": "{{baseUrl}}/schedule/sessions/:sessionId",
+            "variable": [{ "key": "sessionId", "value": "session_id" }]
           }
         },
         {
-          "name": "Update Session (Coach)",
+          "name": "Update Session",
           "request": {
             "method": "PUT",
-            "url": "{{baseUrl}}/schedule/sessions/:id",
-            "variable": [{ "key": "id", "value": "session_id" }],
+            "url": "{{baseUrl}}/schedule/sessions/:sessionId",
+            "variable": [{ "key": "sessionId", "value": "session_id" }],
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
@@ -450,9 +884,9 @@
         {
           "name": "Cancel Session",
           "request": {
-            "method": "DELETE",
-            "url": "{{baseUrl}}/schedule/sessions/:id",
-            "variable": [{ "key": "id", "value": "session_id" }],
+            "method": "POST",
+            "url": "{{baseUrl}}/schedule/sessions/:sessionId/cancel",
+            "variable": [{ "key": "sessionId", "value": "session_id" }],
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
@@ -465,12 +899,12 @@
           "request": {
             "method": "GET",
             "url": {
-              "raw": "{{baseUrl}}/schedule/calendar?month=1&year=2024",
+              "raw": "{{baseUrl}}/schedule/calendar?month=3&year=2026",
               "host": ["{{baseUrl}}"],
               "path": ["schedule", "calendar"],
               "query": [
-                { "key": "month", "value": "1" },
-                { "key": "year", "value": "2024" }
+                { "key": "month", "value": "3" },
+                { "key": "year", "value": "2026" }
               ]
             }
           }
@@ -549,6 +983,14 @@
           }
         },
         {
+          "name": "Delete Message",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/chat/messages/:messageId",
+            "variable": [{ "key": "messageId", "value": "message_id" }]
+          }
+        },
+        {
           "name": "Get Unread Count",
           "request": {
             "method": "GET",
@@ -565,12 +1007,13 @@
           "request": {
             "method": "GET",
             "url": {
-              "raw": "{{baseUrl}}/workouts?category=&difficulty=",
+              "raw": "{{baseUrl}}/workouts?difficulty=&tags=&search=",
               "host": ["{{baseUrl}}"],
               "path": ["workouts"],
               "query": [
-                { "key": "category", "value": "" },
-                { "key": "difficulty", "value": "" }
+                { "key": "difficulty", "value": "" },
+                { "key": "tags", "value": "" },
+                { "key": "search", "value": "" }
               ]
             }
           }
@@ -591,8 +1034,29 @@
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"title\": \"Full Body HIIT\",\n  \"description\": \"30 min high intensity workout\",\n  \"category\": \"HIIT\",\n  \"difficulty\": \"Intermediate\",\n  \"duration\": 30,\n  \"caloriesBurn\": 300\n}"
+              "raw": "{\n  \"title\": \"Full Body HIIT\",\n  \"description\": \"## Instructions\\n30 min high intensity workout\\n\\n## Tips\\nStay hydrated\",\n  \"difficulty\": \"Intermediate\",\n  \"duration\": 30,\n  \"calories\": 300,\n  \"tags\": [\"HIIT\", \"Cardio\"],\n  \"thumbnailUrl\": \"\",\n  \"videoUrl\": \"\"\n}"
             }
+          }
+        },
+        {
+          "name": "Update Workout (Admin)",
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/workouts/:id",
+            "variable": [{ "key": "id", "value": "workout_id" }],
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Updated Workout Title\",\n  \"difficulty\": \"Advanced\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Delete Workout (Admin)",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/workouts/:id",
+            "variable": [{ "key": "id", "value": "workout_id" }]
           }
         }
       ]
@@ -605,10 +1069,13 @@
           "request": {
             "method": "GET",
             "url": {
-              "raw": "{{baseUrl}}/nutrition?category=",
+              "raw": "{{baseUrl}}/nutrition?tags=&search=",
               "host": ["{{baseUrl}}"],
               "path": ["nutrition"],
-              "query": [{ "key": "category", "value": "" }]
+              "query": [
+                { "key": "tags", "value": "" },
+                { "key": "search", "value": "" }
+              ]
             }
           }
         },
@@ -628,8 +1095,29 @@
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"title\": \"Grilled Chicken Salad\",\n  \"description\": \"Healthy protein-rich salad\",\n  \"category\": \"Lunch\",\n  \"calories\": 350,\n  \"protein\": 40,\n  \"carbs\": 15,\n  \"fat\": 12\n}"
+              "raw": "{\n  \"title\": \"Grilled Chicken Salad\",\n  \"content\": \"## Ingredients\\nChicken, lettuce, tomatoes\\n\\n## Instructions\\nGrill chicken and toss with salad\",\n  \"imageUrl\": \"\",\n  \"tags\": [\"Lunch\", \"High Protein\"],\n  \"calories\": 350,\n  \"protein\": 40,\n  \"carbs\": 15,\n  \"fats\": 12\n}"
             }
+          }
+        },
+        {
+          "name": "Update Meal (Admin)",
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/nutrition/:id",
+            "variable": [{ "key": "id", "value": "meal_id" }],
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Updated Meal Title\",\n  \"calories\": 400\n}"
+            }
+          }
+        },
+        {
+          "name": "Delete Meal (Admin)",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/nutrition/:id",
+            "variable": [{ "key": "id", "value": "meal_id" }]
           }
         }
       ]
@@ -642,6 +1130,13 @@
           "request": {
             "method": "GET",
             "url": "{{baseUrl}}/products"
+          }
+        },
+        {
+          "name": "Get Product Categories",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/products/categories"
           }
         },
         {
@@ -660,14 +1155,48 @@
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"title\": \"Protein Powder\",\n  \"description\": \"Whey protein 2kg\",\n  \"price\": 49.99,\n  \"category\": \"Supplements\",\n  \"stock\": 100\n}"
+              "raw": "{\n  \"name\": \"Protein Powder\",\n  \"description\": \"Whey protein 2kg\",\n  \"price\": 49.99,\n  \"category\": \"supplements\",\n  \"stock\": 100,\n  \"sku\": \"SUP-004\",\n  \"images\": []\n}"
+            }
+          }
+        },
+        {
+          "name": "Update Product (Admin)",
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/products/:id",
+            "variable": [{ "key": "id", "value": "product_id" }],
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"price\": 44.99,\n  \"stock\": 150\n}"
+            }
+          }
+        },
+        {
+          "name": "Delete Product (Admin)",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/products/:id",
+            "variable": [{ "key": "id", "value": "product_id" }]
+          }
+        },
+        {
+          "name": "Add Product Review",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/products/:id/review",
+            "variable": [{ "key": "id", "value": "product_id" }],
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"rating\": 5,\n  \"comment\": \"Great product!\"\n}"
             }
           }
         }
       ]
     },
     {
-      "name": "Cart",
+      "name": "Cart & Orders",
       "item": [
         {
           "name": "Get Cart",
@@ -680,7 +1209,7 @@
           "name": "Add to Cart",
           "request": {
             "method": "POST",
-            "url": "{{baseUrl}}/cart/items",
+            "url": "{{baseUrl}}/cart/add",
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
@@ -692,7 +1221,7 @@
           "name": "Update Cart Item",
           "request": {
             "method": "PUT",
-            "url": "{{baseUrl}}/cart/items/:productId",
+            "url": "{{baseUrl}}/cart/item/:productId",
             "variable": [{ "key": "productId", "value": "product_id" }],
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
@@ -705,20 +1234,15 @@
           "name": "Remove from Cart",
           "request": {
             "method": "DELETE",
-            "url": "{{baseUrl}}/cart/items/:productId",
+            "url": "{{baseUrl}}/cart/item/:productId",
             "variable": [{ "key": "productId", "value": "product_id" }]
           }
         },
         {
-          "name": "Apply Promo Code",
+          "name": "Clear Cart",
           "request": {
-            "method": "POST",
-            "url": "{{baseUrl}}/cart/apply-promo",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"code\": \"SAVE10\"\n}"
-            }
+            "method": "DELETE",
+            "url": "{{baseUrl}}/cart/clear"
           }
         },
         {
@@ -734,10 +1258,38 @@
           }
         },
         {
-          "name": "Get Orders",
+          "name": "Get My Orders",
           "request": {
             "method": "GET",
-            "url": "{{baseUrl}}/cart/orders"
+            "url": "{{baseUrl}}/orders"
+          }
+        },
+        {
+          "name": "Get All Orders (Admin)",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/orders/all"
+          }
+        },
+        {
+          "name": "Get Order by ID",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/orders/:id",
+            "variable": [{ "key": "id", "value": "order_id" }]
+          }
+        },
+        {
+          "name": "Update Order Status (Admin)",
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/orders/:id/status",
+            "variable": [{ "key": "id", "value": "order_id" }],
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"shipped\"\n}"
+            }
           }
         }
       ]
@@ -745,6 +1297,25 @@
     {
       "name": "Notifications",
       "item": [
+        {
+          "name": "Register Device Token",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/notifications/device-token",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"fcm_token_here\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Remove Device Token",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/notifications/device-token"
+          }
+        },
         {
           "name": "Get Notifications",
           "request": {
@@ -761,13 +1332,13 @@
           "name": "Get Unread Count",
           "request": {
             "method": "GET",
-            "url": "{{baseUrl}}/notifications/unread-count"
+            "url": "{{baseUrl}}/notifications/count"
           }
         },
         {
           "name": "Mark as Read",
           "request": {
-            "method": "PUT",
+            "method": "PATCH",
             "url": "{{baseUrl}}/notifications/:id/read",
             "variable": [{ "key": "id", "value": "notification_id" }]
           }
@@ -775,20 +1346,16 @@
         {
           "name": "Mark All as Read",
           "request": {
-            "method": "PUT",
+            "method": "PATCH",
             "url": "{{baseUrl}}/notifications/read-all"
           }
         },
         {
-          "name": "Register Device Token",
+          "name": "Delete Notification",
           "request": {
-            "method": "POST",
-            "url": "{{baseUrl}}/notifications/device-token",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"token\": \"fcm_token_here\"\n}"
-            }
+            "method": "DELETE",
+            "url": "{{baseUrl}}/notifications/:id",
+            "variable": [{ "key": "id", "value": "notification_id" }]
           }
         }
       ]
@@ -797,7 +1364,7 @@
       "name": "Media",
       "item": [
         {
-          "name": "Get Presigned URL",
+          "name": "Get Upload URL (Cloudinary)",
           "request": {
             "method": "POST",
             "url": "{{baseUrl}}/media/presigned-url",
@@ -818,6 +1385,41 @@
           "request": {
             "method": "GET",
             "url": "{{baseUrl}}/admin/stats"
+          }
+        },
+        {
+          "name": "Get User Stats",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/admin/stats/users"
+          }
+        },
+        {
+          "name": "Get Coach Stats",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/admin/stats/coaches"
+          }
+        },
+        {
+          "name": "Get Revenue Stats",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/admin/stats/revenue"
+          }
+        },
+        {
+          "name": "Get Session Stats",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/admin/stats/sessions"
+          }
+        },
+        {
+          "name": "Get Content Stats",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/admin/stats/content"
           }
         },
         {
