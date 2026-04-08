@@ -48,6 +48,7 @@
                   "var json = pm.response.json();",
                   "if (json.access_token) {",
                   "  pm.collectionVariables.set('token', json.access_token);",
+                  "  pm.globals.set('token', json.access_token);",
                   "}"
                 ]
               }
@@ -73,6 +74,7 @@
                   "var json = pm.response.json();",
                   "if (json.access_token) {",
                   "  pm.collectionVariables.set('token', json.access_token);",
+                  "  pm.globals.set('token', json.access_token);",
                   "}"
                 ]
               }
@@ -98,6 +100,7 @@
                   "var json = pm.response.json();",
                   "if (json.access_token) {",
                   "  pm.collectionVariables.set('token', json.access_token);",
+                  "  pm.globals.set('token', json.access_token);",
                   "}"
                 ]
               }
@@ -291,7 +294,7 @@
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"userData\": {\n    \"age\": 25,\n    \"weight\": 75,\n    \"height\": 180,\n    \"fitnessLevel\": \"Intermediate\",\n    \"goals\": [\"muscle_gain\", \"endurance\"]\n  }\n}"
+              "raw": "{\n  \"userData\": {\n    \"age\": 25,\n    \"weight\": 75,\n    \"height\": 180,\n    \"fitnessLevel\": \"Intermediate\",\n    \"goals\": [\"muscle_gain\", \"endurance\"],\n    \"userId\": \"user123\"\n  }\n}"
             }
           }
         },

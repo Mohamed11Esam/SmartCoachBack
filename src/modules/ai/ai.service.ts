@@ -19,9 +19,9 @@ export class AiService {
         this.aiServiceUrl = this.configService.get<string>('AI_SERVICE_URL') || 'http://localhost:8000';
     }
 
-    async chat(query: string) {
+    async chat(query: string, userId?: string) {
         const { data } = await firstValueFrom(
-            this.httpService.post(`${this.aiServiceUrl}/rag/query`, { query }).pipe(
+            this.httpService.post(`${this.aiServiceUrl}/rag/query`, { query, user_id: userId || 'user' }).pipe(
                 catchError((error: AxiosError) => {
                     throw new HttpException(
                         error.response?.data || 'AI Service Error',
@@ -34,17 +34,42 @@ export class AiService {
     }
 
     async generatePlan(userData: any) {
-        const { data } = await firstValueFrom(
-            this.httpService.post(`${this.aiServiceUrl}/rag/plan`, { user_data: userData }).pipe(
-                catchError((error: AxiosError) => {
-                    throw new HttpException(
-                        error.response?.data || 'AI Service Error',
-                        error.response?.status || HttpStatus.INTERNAL_SERVER_ERROR,
-                    );
-                }),
-            ),
-        );
-        return data;
+        try {
+            const aiRequest = {
+                user_id: userData.userId || 'user',
+                goal: Array.isArray(userData.goals) ? userData.goals[0] : (userData.goals || 'strength'),
+                fitness_level: (userData.fitnessLevel || 'beginner').toLowerCase(),
+                age: userData.age,
+                weight: userData.weight,
+                height: userData.height,
+            };
+            const { data } = await firstValueFrom(
+                this.httpService.post(`${this.aiServiceUrl}/rag/plan`, aiRequest).pipe(
+                    catchError((error: AxiosError) => {
+                        throw new HttpException(
+                            error.response?.data || 'AI Service Error',
+                            error.response?.status || HttpStatus.INTERNAL_SERVER_ERROR,
+                        );
+                    }),
+                ),
+            );
+            return data;
+        } catch (error) {
+            if (error instanceof HttpException &&
+                (error.getStatus() === HttpStatus.SERVICE_UNAVAILABLE ||
+                    error.getStatus() === HttpStatus.INTERNAL_SERVER_ERROR)) {
+                return {
+                    title: 'Personalized Fitness Plan',
+                    userData,
+                    plan: {
+                        workouts: ['Full Body HIIT', 'Strength Training', 'Cardio'],
+                        nutrition: ['High protein diet', 'Stay hydrated'],
+                    },
+                    note: 'AI service temporarily unavailable - showing default plan',
+                };
+            }
+            throw error;
+        }
     }
 
     async getHistory(userId: string) {
@@ -80,7 +105,9 @@ export class AiService {
             return data;
         } catch (error) {
             // Fallback to structured response if AI service is unavailable
-            if (error instanceof HttpException && error.getStatus() === HttpStatus.SERVICE_UNAVAILABLE) {
+            if (error instanceof HttpException &&
+                (error.getStatus() === HttpStatus.SERVICE_UNAVAILABLE ||
+                    error.getStatus() === HttpStatus.INTERNAL_SERVER_ERROR)) {
                 return {
                     title: 'Personalized Meal Plan',
                     preferences,

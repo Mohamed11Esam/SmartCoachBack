@@ -15,8 +15,8 @@ export class AiController {
     @Post('chat')
     @ApiOperation({ summary: 'Chat with AI assistant' })
     @ApiResponse({ status: 200, description: 'AI response returned successfully' })
-    async chat(@Body() body: ChatDto) {
-        return this.aiService.chat(body.query);
+    async chat(@Body() body: ChatDto, @Request() req) {
+        return this.aiService.chat(body.query, req.user?.userId);
     }
 
     @Post('plan')
