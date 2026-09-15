@@ -3,6 +3,21 @@ import { IsString, IsObject, IsOptional, IsArray, IsNumber, Min, Max } from 'cla
 export class ChatDto {
     @IsString()
     query: string;
+
+    @IsOptional()
+    @IsString()
+    sessionId?: string;
+}
+
+export class CreateAiSessionDto {
+    @IsOptional()
+    @IsString()
+    title?: string;
+}
+
+export class UpdateAiSessionDto {
+    @IsString()
+    title: string;
 }
 
 export class GenerateMealPlanDto {

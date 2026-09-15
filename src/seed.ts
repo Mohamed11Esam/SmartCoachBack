@@ -174,16 +174,16 @@ async function bootstrap() {
 
     // ── 4. Seed Products ──
     const products = [
-        { name: 'Whey Protein Powder', description: 'Premium whey protein isolate, 25g per serving.', price: 49.99, category: 'supplements', stock: 120, sku: 'SUP-001' },
-        { name: 'Creatine Monohydrate', description: 'Micronized creatine for strength and recovery.', price: 29.99, salePrice: 24.99, category: 'supplements', stock: 200, sku: 'SUP-002' },
-        { name: 'Resistance Bands Set', description: 'Set of 5 resistance bands with varying tension.', price: 34.99, category: 'equipment', stock: 85, sku: 'EQP-001' },
-        { name: 'Adjustable Dumbbells', description: 'Adjustable dumbbells 5-52.5 lbs per hand.', price: 299.99, salePrice: 249.99, category: 'equipment', stock: 30, sku: 'EQP-002' },
-        { name: 'Yoga Mat Premium', description: 'Extra thick non-slip yoga mat.', price: 39.99, category: 'equipment', stock: 150, sku: 'EQP-003' },
-        { name: 'Performance T-Shirt', description: 'Moisture-wicking workout t-shirt.', price: 29.99, category: 'apparel', stock: 300, sku: 'APP-001' },
-        { name: 'Compression Leggings', description: 'High-waist compression leggings.', price: 44.99, category: 'apparel', stock: 180, sku: 'APP-002' },
-        { name: 'Shaker Bottle', description: 'BPA-free protein shaker bottle 28oz.', price: 12.99, category: 'accessories', stock: 500, sku: 'ACC-001' },
-        { name: 'Lifting Gloves', description: 'Padded weight lifting gloves.', price: 19.99, category: 'accessories', stock: 200, sku: 'ACC-002' },
-        { name: 'Pre-Workout Energy', description: 'High caffeine pre-workout formula.', price: 39.99, salePrice: 34.99, category: 'supplements', stock: 95, sku: 'SUP-003' },
+        { name: 'Whey Protein Powder', description: 'Premium whey protein isolate, 25g per serving.', price: 49.99, category: 'supplements', stock: 120, sku: 'SUP-001', images: ['https://images.unsplash.com/photo-1579722821273-0f6c7d44362f?w=600'] },
+        { name: 'Creatine Monohydrate', description: 'Micronized creatine for strength and recovery.', price: 29.99, salePrice: 24.99, category: 'supplements', stock: 200, sku: 'SUP-002', images: ['https://images.unsplash.com/photo-1616803689943-5601631c7fec?w=600'] },
+        { name: 'Resistance Bands Set', description: 'Set of 5 resistance bands with varying tension.', price: 34.99, category: 'equipment', stock: 85, sku: 'EQP-001', images: ['https://images.unsplash.com/photo-1598289431512-b97b0917affc?w=600'] },
+        { name: 'Adjustable Dumbbells', description: 'Adjustable dumbbells 5-52.5 lbs per hand.', price: 299.99, salePrice: 249.99, category: 'equipment', stock: 30, sku: 'EQP-002', images: ['https://images.unsplash.com/photo-1638536532686-d610adfc8e5c?w=600'] },
+        { name: 'Yoga Mat Premium', description: 'Extra thick non-slip yoga mat.', price: 39.99, category: 'equipment', stock: 150, sku: 'EQP-003', images: ['https://images.unsplash.com/photo-1601925260368-ae2f83cf8b7f?w=600'] },
+        { name: 'Performance T-Shirt', description: 'Moisture-wicking workout t-shirt.', price: 29.99, category: 'apparel', stock: 300, sku: 'APP-001', images: ['https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=600'] },
+        { name: 'Compression Leggings', description: 'High-waist compression leggings.', price: 44.99, category: 'apparel', stock: 180, sku: 'APP-002', images: ['https://images.unsplash.com/photo-1506629082955-511b1aa562c8?w=600'] },
+        { name: 'Shaker Bottle', description: 'BPA-free protein shaker bottle 28oz.', price: 12.99, category: 'accessories', stock: 500, sku: 'ACC-001', images: ['https://images.unsplash.com/photo-1556228578-0d85b1a4d571?w=600'] },
+        { name: 'Lifting Gloves', description: 'Padded weight lifting gloves.', price: 19.99, category: 'accessories', stock: 200, sku: 'ACC-002', images: ['https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?w=600'] },
+        { name: 'Pre-Workout Energy', description: 'High caffeine pre-workout formula.', price: 39.99, salePrice: 34.99, category: 'supplements', stock: 95, sku: 'SUP-003', images: ['https://images.unsplash.com/photo-1546483875-ad9014c88eba?w=600'] },
     ];
 
     const productIds: string[] = [];
@@ -259,11 +259,11 @@ async function bootstrap() {
 
     // ── 6. Seed Workouts ──
     const workouts = [
-        { title: 'Full Body HIIT', description: '## Instructions\nHigh intensity interval training for full body.\n\n## Tips\nStay hydrated and take breaks when needed.', videoUrl: '', difficulty: 'Intermediate', tags: ['HIIT', 'Cardio', 'Full Body'], duration: 30, calories: 300 },
-        { title: 'Yoga for Beginners', description: '## Instructions\nRelaxing yoga flow for flexibility.\n\n## Tips\nFocus on breathing.', videoUrl: '', difficulty: 'Beginner', tags: ['Yoga', 'Flexibility'], duration: 45, calories: 150 },
-        { title: 'Advanced Strength', description: '## Instructions\nHeavy compound lifts for muscle gain.\n\n## Tips\nWarm up properly before heavy sets.', videoUrl: '', difficulty: 'Advanced', tags: ['Strength', 'Muscle'], duration: 60, calories: 400 },
-        { title: 'Core Blaster', description: '## Instructions\n10 min intense ab workout.\n\n## Tips\nKeep core engaged throughout.', videoUrl: '', difficulty: 'Intermediate', tags: ['Core', 'Abs'], duration: 10, calories: 100 },
-        { title: 'Cardio Kickboxing', description: '## Instructions\nHigh energy kickboxing cardio.\n\n## Tips\nKeep your guard up.', videoUrl: '', difficulty: 'Intermediate', tags: ['Cardio', 'Kickboxing'], duration: 40, calories: 350 },
+        { title: 'Full Body HIIT', description: '## Instructions\nHigh intensity interval training for full body.\n\n## Tips\nStay hydrated and take breaks when needed.', videoUrl: 'https://assets.mixkit.co/videos/23056/23056-720.mp4', thumbnailUrl: 'https://images.unsplash.com/photo-1534258936925-c58bed479fcb?w=600', difficulty: 'Intermediate', tags: ['HIIT', 'Cardio', 'Full Body'], duration: 30, calories: 300 },
+        { title: 'Yoga for Beginners', description: '## Instructions\nRelaxing yoga flow for flexibility.\n\n## Tips\nFocus on breathing.', videoUrl: '', thumbnailUrl: 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=600', difficulty: 'Beginner', tags: ['Yoga', 'Flexibility'], duration: 45, calories: 150 },
+        { title: 'Advanced Strength', description: '## Instructions\nHeavy compound lifts for muscle gain.\n\n## Tips\nWarm up properly before heavy sets.', videoUrl: 'https://assets.mixkit.co/active_storage/video_items/100543/1725384976/100543-video-1080.mp4', thumbnailUrl: 'https://images.unsplash.com/photo-1526506118085-60ce8714f8c5?w=600', difficulty: 'Advanced', tags: ['Strength', 'Muscle'], duration: 60, calories: 400 },
+        { title: 'Core Blaster', description: '## Instructions\n10 min intense ab workout.\n\n## Tips\nKeep core engaged throughout.', videoUrl: '', thumbnailUrl: 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=600', difficulty: 'Intermediate', tags: ['Core', 'Abs'], duration: 10, calories: 100 },
+        { title: 'Cardio Kickboxing', description: '## Instructions\nHigh energy kickboxing cardio.\n\n## Tips\nKeep your guard up.', videoUrl: 'https://assets.mixkit.co/videos/45874/45874-720.mp4', thumbnailUrl: 'https://images.unsplash.com/photo-1549719386-74dfcbf7dbed?w=600', difficulty: 'Intermediate', tags: ['Cardio', 'Kickboxing'], duration: 40, calories: 350 },
     ];
 
     for (const w of workouts) {
@@ -276,10 +276,10 @@ async function bootstrap() {
 
     // ── 7. Seed Nutrition / Meals ──
     const meals = [
-        { title: 'High Protein Breakfast', content: '## Ingredients\n3 eggs, 2 toast, 1 avocado\n\n## Instructions\nScramble eggs, toast bread, slice avocado.', imageUrl: '', tags: ['Breakfast', 'High Protein'], calories: 450, protein: 35, carbs: 30, fats: 20 },
-        { title: 'Keto Lunch Salad', content: '## Ingredients\nChicken breast, spinach, olive oil, feta\n\n## Instructions\nGrill chicken, toss with greens and dressing.', imageUrl: '', tags: ['Lunch', 'Keto', 'Low Carb'], calories: 500, protein: 40, carbs: 8, fats: 32 },
-        { title: 'Post-Workout Smoothie', content: '## Ingredients\n1 banana, 1 scoop whey, milk, peanut butter\n\n## Instructions\nBlend all ingredients until smooth.', imageUrl: '', tags: ['Snack', 'Post-Workout'], calories: 380, protein: 30, carbs: 45, fats: 10 },
-        { title: 'Grilled Salmon Bowl', content: '## Ingredients\nSalmon fillet, brown rice, broccoli, soy sauce\n\n## Instructions\nGrill salmon, cook rice, steam broccoli.', imageUrl: '', tags: ['Dinner', 'High Protein', 'Omega-3'], calories: 620, protein: 45, carbs: 50, fats: 22 },
+        { title: 'High Protein Breakfast', content: '## Ingredients\n3 eggs, 2 toast, 1 avocado\n\n## Instructions\nScramble eggs, toast bread, slice avocado.', imageUrl: 'https://images.unsplash.com/photo-1525351484163-7529414344d8?w=600', tags: ['Breakfast', 'High Protein'], calories: 450, protein: 35, carbs: 30, fats: 20 },
+        { title: 'Keto Lunch Salad', content: '## Ingredients\nChicken breast, spinach, olive oil, feta\n\n## Instructions\nGrill chicken, toss with greens and dressing.', imageUrl: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=600', tags: ['Lunch', 'Keto', 'Low Carb'], calories: 500, protein: 40, carbs: 8, fats: 32 },
+        { title: 'Post-Workout Smoothie', content: '## Ingredients\n1 banana, 1 scoop whey, milk, peanut butter\n\n## Instructions\nBlend all ingredients until smooth.', imageUrl: 'https://images.unsplash.com/photo-1553530666-ba11a7da3888?w=600', tags: ['Snack', 'Post-Workout'], calories: 380, protein: 30, carbs: 45, fats: 10 },
+        { title: 'Grilled Salmon Bowl', content: '## Ingredients\nSalmon fillet, brown rice, broccoli, soy sauce\n\n## Instructions\nGrill salmon, cook rice, steam broccoli.', imageUrl: 'https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=600', tags: ['Dinner', 'High Protein', 'Omega-3'], calories: 620, protein: 45, carbs: 50, fats: 22 },
     ];
 
     for (const n of meals) {
@@ -311,6 +311,35 @@ async function bootstrap() {
             console.log('✅ Plan created');
         }
     }
+
+    // ── 9. Update images for existing records ──
+    const productCollection = connection.collection('products');
+    const workoutCollection = connection.collection('freeworkouts');
+    const nutritionCollection = connection.collection('freenutritions');
+
+    for (const p of products) {
+        await productCollection.updateOne(
+            { name: p.name },
+            { $set: { images: (p as any).images } },
+        );
+    }
+    console.log('✅ Product images updated');
+
+    for (const w of workouts) {
+        await workoutCollection.updateOne(
+            { title: w.title },
+            { $set: { thumbnailUrl: (w as any).thumbnailUrl, videoUrl: w.videoUrl } },
+        );
+    }
+    console.log('✅ Workout thumbnails & videos updated');
+
+    for (const n of meals) {
+        await nutritionCollection.updateOne(
+            { title: n.title },
+            { $set: { imageUrl: n.imageUrl } },
+        );
+    }
+    console.log('✅ Meal images updated');
 
     console.log('\n🚀 Seeding Complete!');
     console.log(`   Users: 50+ customers, 4 coaches, 1 admin`);
