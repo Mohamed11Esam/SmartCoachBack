@@ -46,13 +46,17 @@ export class PaymentsService {
         }
 
         const subscriptionId = `mock_sub_${Date.now()}`;
+        const tier: 'free' | 'pro' | 'elite' = plan.id === 'elite' ? 'elite' : plan.id === 'pro' ? 'pro' : 'free';
+        const periodEnd = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
 
-        // Update user's subscription status in the database
+        // Update user's subscription status and tier in the database
         await this.usersService.updateSubscription(
             userId,
             'active',
             subscriptionId,
             coachId,
+            tier,
+            periodEnd,
         );
 
         const user = await this.usersService.findById(userId);
@@ -63,39 +67,47 @@ export class PaymentsService {
                 id: subscriptionId,
                 planId: plan.id,
                 planName: plan.name,
+                tier,
                 price: plan.price,
                 currency: plan.currency,
                 interval: plan.interval,
                 status: 'active',
                 coachId: coachId || null,
                 startDate: new Date().toISOString(),
-                currentPeriodEnd: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+                currentPeriodEnd: periodEnd.toISOString(),
             },
             user: {
                 _id: user._id,
                 email: user.email,
                 subscriptionStatus: 'active',
+                subscriptionTier: tier,
             },
         };
     }
 
     async mockCancelSubscription(userId: string) {
-        await this.usersService.updateSubscription(userId, 'canceled');
+        await this.usersService.updateSubscription(userId, 'canceled', undefined, undefined, 'free');
 
         return {
             success: true,
             message: 'Subscription canceled successfully',
             status: 'canceled',
+            subscriptionTier: 'free',
         };
     }
 
     async getSubscriptionStatus(userId: string) {
         const user = await this.usersService.findById(userId);
+        const tier: 'free' | 'pro' | 'elite' = (user as any)?.subscriptionTier || 'free';
+        const plan = SUBSCRIPTION_PLANS.find(p => p.id === (tier === 'free' ? 'basic' : tier)) || SUBSCRIPTION_PLANS[0];
 
         return {
-            subscriptionStatus: user.subscriptionStatus || 'none',
-            subscribedCoachId: (user as any).subscribedCoachId || null,
-            subscriptionId: (user as any).subscriptionId || null,
+            subscriptionStatus: user?.subscriptionStatus || 'none',
+            subscriptionTier: tier,
+            subscriptionPeriodEnd: (user as any)?.subscriptionPeriodEnd || null,
+            subscribedCoachId: (user as any)?.subscribedCoachId || null,
+            subscriptionId: (user as any)?.subscriptionId || null,
+            features: plan?.features || [],
         };
     }
 
@@ -111,11 +123,14 @@ export class PaymentsService {
     }
 
     async createCheckoutSession(customerId: string, priceId: string, coachId: string) {
+        const plan = SUBSCRIPTION_PLANS.find(p => p.priceId === priceId);
+        const planId = plan?.id || 'pro';
+
         if (this.isDev) {
             const baseUrl = this.configService.get('APP_URL') || 'http://localhost:3000';
             return {
                 id: `mock_session_${Date.now()}`,
-                url: `${baseUrl}/payments/mock-success`,
+                url: `${baseUrl}/payments/mock-success?planId=${planId}&coachId=${coachId || ''}`,
             };
         }
         const Stripe = require('stripe');
@@ -126,7 +141,7 @@ export class PaymentsService {
             line_items: [{ price: priceId, quantity: 1 }],
             success_url: this.configService.get('STRIPE_SUCCESS_URL'),
             cancel_url: this.configService.get('STRIPE_CANCEL_URL'),
-            metadata: { coachId },
+            metadata: { coachId, planId, priceId },
         });
     }
 
@@ -164,6 +179,7 @@ export class PaymentsService {
         const customerId = session.customer;
         const subscriptionId = session.subscription;
         const coachId = session.metadata?.coachId;
+        const planId = session.metadata?.planId;
 
         let user = await this.usersService.findByStripeCustomerId(customerId);
         if (!user && session.customer_details?.email) {
@@ -171,21 +187,56 @@ export class PaymentsService {
         }
 
         if (user) {
-            await this.usersService.updateSubscription(user._id.toString(), 'active', subscriptionId, coachId);
+            const tier: 'free' | 'pro' | 'elite' = planId === 'elite' ? 'elite' : planId === 'pro' ? 'pro' : 'free';
+            const periodEnd = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+            await this.usersService.updateSubscription(
+                user._id.toString(),
+                'active',
+                subscriptionId,
+                coachId,
+                tier,
+                periodEnd,
+            );
         }
     }
 
     private async handleSubscriptionDeleted(subscription: any) {
         const user = await this.usersService.findByStripeCustomerId(subscription.customer);
         if (user) {
-            await this.usersService.updateSubscription(user._id.toString(), 'canceled', subscription.id);
+            await this.usersService.updateSubscription(
+                user._id.toString(),
+                'canceled',
+                subscription.id,
+                undefined,
+                'free',
+            );
         }
     }
 
     private async handleSubscriptionUpdated(subscription: any) {
         const user = await this.usersService.findByStripeCustomerId(subscription.customer);
         if (user) {
-            await this.usersService.updateSubscription(user._id.toString(), subscription.status, subscription.id);
+            const status = subscription.status;
+            let tier: 'free' | 'pro' | 'elite' = 'free';
+
+            if (status === 'active') {
+                const priceId = subscription.items?.data?.[0]?.price?.id;
+                const plan = SUBSCRIPTION_PLANS.find(p => p.priceId === priceId);
+                tier = plan?.id === 'elite' ? 'elite' : plan?.id === 'pro' ? 'pro' : 'free';
+            }
+
+            const periodEnd = subscription.current_period_end
+                ? new Date(subscription.current_period_end * 1000)
+                : undefined;
+
+            await this.usersService.updateSubscription(
+                user._id.toString(),
+                status,
+                subscription.id,
+                undefined,
+                tier,
+                periodEnd,
+            );
         }
     }
 }

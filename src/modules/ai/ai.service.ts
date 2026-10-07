@@ -166,15 +166,16 @@ export class AiService {
     async generatePlan(userData: any) {
         try {
             const aiRequest = {
-                user_id: userData.userId || 'user',
-                goal: Array.isArray(userData.goals) ? userData.goals[0] : (userData.goals || 'strength'),
-                fitness_level: (userData.fitnessLevel || 'beginner').toLowerCase(),
-                age: userData.age,
-                weight: userData.weight,
-                height: userData.height,
+                user_id: userData.userId || userData.user_id || 'user',
+                goal: Array.isArray(userData.goals) ? userData.goals[0] : (userData.goals || userData.goal || 'Hypertrophy'),
+                fitness_level: (userData.fitnessLevel || userData.fitness_level || 'beginner').toLowerCase(),
+                split_type: userData.splitType || userData.split_type || 'UpperLower',
+                cycle_weeks: userData.cycleWeeks || userData.cycle_weeks || 4,
+                equipment: userData.equipment || userData.availableEquipment || [],
+                injuries: userData.injuries || [],
             };
             const { data } = await firstValueFrom(
-                this.httpService.post(`${this.aiServiceUrl}/rag/plan`, aiRequest).pipe(
+                this.httpService.post(`${this.aiServiceUrl}/generator/master-plan`, aiRequest).pipe(
                     catchError((error: AxiosError) => {
                         throw new HttpException(
                             error.response?.data || 'AI Service Error',
@@ -199,6 +200,44 @@ export class AiService {
                 };
             }
             throw error;
+        }
+    }
+
+    async calculateProgressiveOverload(data: any) {
+        try {
+            const { data: result } = await firstValueFrom(
+                this.httpService.post(`${this.aiServiceUrl}/algorithms/overload`, data).pipe(
+                    catchError((error: AxiosError) => {
+                        throw new HttpException(
+                            error.response?.data || 'AI Service Error',
+                            error.response?.status || HttpStatus.INTERNAL_SERVER_ERROR,
+                        );
+                    }),
+                ),
+            );
+            return result;
+        } catch (error) {
+            if (error instanceof HttpException) throw error;
+            throw new HttpException('Failed to calculate progressive overload', HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    async calculateAdaptiveTdee(data: any) {
+        try {
+            const { data: result } = await firstValueFrom(
+                this.httpService.post(`${this.aiServiceUrl}/algorithms/tdee`, data).pipe(
+                    catchError((error: AxiosError) => {
+                        throw new HttpException(
+                            error.response?.data || 'AI Service Error',
+                            error.response?.status || HttpStatus.INTERNAL_SERVER_ERROR,
+                        );
+                    }),
+                ),
+            );
+            return result;
+        } catch (error) {
+            if (error instanceof HttpException) throw error;
+            throw new HttpException('Failed to calculate adaptive TDEE', HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 

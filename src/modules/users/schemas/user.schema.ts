@@ -100,6 +100,12 @@ export class User {
     @Prop({ enum: ['active', 'canceled', 'past_due', 'none'], default: 'none' })
     subscriptionStatus: string;
 
+    @Prop({ enum: ['free', 'pro', 'elite'], default: 'free' })
+    subscriptionTier: string;
+
+    @Prop()
+    subscriptionPeriodEnd?: Date;
+
     @Prop()
     subscriptionId?: string;
 
@@ -114,3 +120,4 @@ export const UserSchema = SchemaFactory.createForClass(User);
 UserSchema.index({ role: 1 });
 UserSchema.index({ isBanned: 1 });
 UserSchema.index({ subscriptionStatus: 1 });
+UserSchema.index({ subscriptionTier: 1 });

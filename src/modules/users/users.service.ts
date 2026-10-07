@@ -31,13 +31,19 @@ export class UsersService {
         userId: string,
         status: string,
         subscriptionId?: string,
-        subscribedCoachId?: string
+        subscribedCoachId?: string,
+        tier?: 'free' | 'pro' | 'elite',
+        periodEnd?: Date,
     ): Promise<UserDocument> {
-        return this.usersRepository.update(userId, {
+        const updateData: any = {
             subscriptionStatus: status,
-            subscriptionId,
-            subscribedCoachId,
-        } as any);
+        };
+        if (subscriptionId !== undefined) updateData.subscriptionId = subscriptionId;
+        if (subscribedCoachId !== undefined) updateData.subscribedCoachId = subscribedCoachId;
+        if (tier !== undefined) updateData.subscriptionTier = tier;
+        if (periodEnd !== undefined) updateData.subscriptionPeriodEnd = periodEnd;
+
+        return this.usersRepository.update(userId, updateData);
     }
 
     async findAll(): Promise<UserDocument[]> {

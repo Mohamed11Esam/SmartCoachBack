@@ -1,6 +1,6 @@
 import { Controller, Get, Post, Body, Param, UseGuards, Put } from '@nestjs/common';
 import { ProgressLogsService } from './progress-logs.service';
-import { CreateProgressLogDto } from './dto/create-progress-log.dto';
+import { CreateProgressLogDto, WorkoutSessionLogDto } from './dto/create-progress-log.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 
@@ -11,37 +11,56 @@ export class ProgressLogsController {
 
     @Post()
     create(@CurrentUser() user: any, @Body() dto: CreateProgressLogDto) {
-        return this.progressLogsService.create(user.sub, dto);
+        const userId = user.userId || user.sub;
+        return this.progressLogsService.create(userId, dto);
+    }
+
+    @Post('workout-session')
+    logWorkoutSession(@CurrentUser() user: any, @Body() dto: WorkoutSessionLogDto) {
+        const userId = user.userId || user.sub;
+        return this.progressLogsService.logWorkoutSession(userId, dto);
+    }
+
+    @Get('volume-history')
+    getVolumeHistory(@CurrentUser() user: any) {
+        const userId = user.userId || user.sub;
+        return this.progressLogsService.getVolumeHistory(userId);
     }
 
     @Get('my-logs')
     findMyLogs(@CurrentUser() user: any) {
-        return this.progressLogsService.findByUserId(user.sub);
+        const userId = user.userId || user.sub;
+        return this.progressLogsService.findByUserId(userId);
     }
 
     @Get('stats')
     getStats(@CurrentUser() user: any) {
-        return this.progressLogsService.getStats(user.sub);
+        const userId = user.userId || user.sub;
+        return this.progressLogsService.getStats(userId);
     }
 
     @Post('metrics')
     logMetrics(@CurrentUser() user: any, @Body() body: any) {
-        return this.progressLogsService.logMetrics(user.sub, body);
+        const userId = user.userId || user.sub;
+        return this.progressLogsService.logMetrics(userId, body);
     }
 
     @Get('metrics')
     getMetrics(@CurrentUser() user: any) {
-        return this.progressLogsService.getMetrics(user.sub);
+        const userId = user.userId || user.sub;
+        return this.progressLogsService.getMetrics(userId);
     }
 
     @Post('goals')
     createGoal(@CurrentUser() user: any, @Body() body: any) {
-        return this.progressLogsService.createGoal(user.sub, body);
+        const userId = user.userId || user.sub;
+        return this.progressLogsService.createGoal(userId, body);
     }
 
     @Get('goals')
     getGoals(@CurrentUser() user: any) {
-        return this.progressLogsService.getGoals(user.sub);
+        const userId = user.userId || user.sub;
+        return this.progressLogsService.getGoals(userId);
     }
 
     @Put('goals/:id')

@@ -1,6 +1,41 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 
+@Schema({ _id: false })
+export class ExerciseItem {
+    @Prop({ required: true })
+    id: string;
+
+    @Prop({ required: true })
+    name: string;
+
+    @Prop({ required: true })
+    sets: number;
+
+    @Prop({ required: true })
+    reps: number;
+
+    @Prop({ default: 0 })
+    weight: number; // kg
+
+    @Prop({ default: 60 })
+    restSeconds: number;
+
+    @Prop({ required: true })
+    targetMuscle: string;
+
+    @Prop()
+    videoUrl?: string;
+
+    @Prop()
+    thumbnailUrl?: string;
+
+    @Prop({ type: [String], default: [] })
+    instructions?: string[];
+}
+
+export const ExerciseItemSchema = SchemaFactory.createForClass(ExerciseItem);
+
 export type FreeWorkoutDocument = FreeWorkout & Document;
 
 @Schema({ timestamps: true })
@@ -20,7 +55,7 @@ export class FreeWorkout {
     @Prop({ required: true, enum: ['Beginner', 'Intermediate', 'Advanced'] })
     difficulty: string;
 
-    @Prop({ enum: ['Strength', 'Cardio', 'Yoga', 'Stretching', 'HIIT', 'CrossFit', 'Pilates', 'Other'] })
+    @Prop({ enum: ['Strength', 'Cardio', 'Yoga', 'Stretching', 'HIIT', 'CrossFit', 'Pilates', 'Hypertrophy', 'Other'] })
     category: string;
 
     @Prop([String])
@@ -34,6 +69,12 @@ export class FreeWorkout {
 
     @Prop({ default: 0 })
     viewCount: number;
+
+    @Prop({ type: [String], default: [] })
+    targetMuscles: string[];
+
+    @Prop({ type: [ExerciseItemSchema], default: [] })
+    exercises: ExerciseItem[];
 }
 
 export const FreeWorkoutSchema = SchemaFactory.createForClass(FreeWorkout);

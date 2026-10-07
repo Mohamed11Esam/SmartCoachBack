@@ -8,6 +8,8 @@ import { JwtStrategy } from './strategies/jwt.strategy';
 import { LocalStrategy } from './strategies/local.strategy';
 import { AuthController } from './auth.controller';
 
+import { SubscriptionTierGuard } from './guards/tier.guard';
+
 @Module({
     imports: [
         UsersModule,
@@ -21,8 +23,8 @@ import { AuthController } from './auth.controller';
             inject: [ConfigService],
         }),
     ],
-    providers: [AuthService, LocalStrategy, JwtStrategy],
+    providers: [AuthService, LocalStrategy, JwtStrategy, SubscriptionTierGuard],
     controllers: [AuthController],
-    exports: [AuthService],
+    exports: [AuthService, SubscriptionTierGuard],
 })
 export class AuthModule { }

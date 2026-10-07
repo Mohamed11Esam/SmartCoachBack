@@ -81,4 +81,18 @@ export class AiController {
     async generateWorkoutPlan(@Body() body: GenerateWorkoutDto) {
         return this.aiService.generateWorkoutPlan(body);
     }
+
+    @Post('algorithms/overload')
+    @ApiOperation({ summary: 'Calculate progressive overload prescription' })
+    @ApiResponse({ status: 200, description: 'Progressive overload calculated successfully' })
+    async calculateProgressiveOverload(@Body() body: any) {
+        return this.aiService.calculateProgressiveOverload(body);
+    }
+
+    @Post('algorithms/tdee')
+    @ApiOperation({ summary: 'Calculate adaptive TDEE and macronutrient partitioning' })
+    @ApiResponse({ status: 200, description: 'Adaptive TDEE calculated successfully' })
+    async calculateAdaptiveTdee(@Body() body: any) {
+        return this.aiService.calculateAdaptiveTdee(body);
+    }
 }
