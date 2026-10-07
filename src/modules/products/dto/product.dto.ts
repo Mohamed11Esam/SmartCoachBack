@@ -42,6 +42,18 @@ export class CreateProductDto {
     @IsString()
     sku?: string;
 
+    @ApiPropertyOptional({ example: ['Double Rich Chocolate', 'Madagascar Vanilla'] })
+    @IsOptional()
+    @IsArray()
+    @IsString({ each: true })
+    flavors?: string[];
+
+    @ApiPropertyOptional({ example: ['Small', 'Medium', 'Large'] })
+    @IsOptional()
+    @IsArray()
+    @IsString({ each: true })
+    sizes?: string[];
+
     @ApiPropertyOptional({ example: { weight: '2.5kg', flavor: 'Chocolate' } })
     @IsOptional()
     specifications?: Record<string, string>;
@@ -96,6 +108,28 @@ export class UpdateProductDto {
     @IsOptional()
     @IsString()
     sku?: string;
+
+    @ApiPropertyOptional({ example: ['Double Rich Chocolate', 'Madagascar Vanilla'] })
+    @IsOptional()
+    @IsArray()
+    @IsString({ each: true })
+    flavors?: string[];
+
+    @ApiPropertyOptional({ example: ['Small', 'Medium', 'Large'] })
+    @IsOptional()
+    @IsArray()
+    @IsString({ each: true })
+    sizes?: string[];
+
+    @ApiPropertyOptional({ example: 4.9 })
+    @IsOptional()
+    @IsNumber()
+    averageRating?: number;
+
+    @ApiPropertyOptional({ example: 120 })
+    @IsOptional()
+    @IsNumber()
+    reviewCount?: number;
 
     @ApiPropertyOptional()
     @IsOptional()

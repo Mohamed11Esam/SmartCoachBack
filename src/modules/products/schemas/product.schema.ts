@@ -41,6 +41,12 @@ export class Product {
     @Prop()
     sku?: string;
 
+    @Prop([String])
+    flavors?: string[];
+
+    @Prop([String])
+    sizes?: string[];
+
     @Prop({ type: Object })
     specifications?: Record<string, string>;
 }

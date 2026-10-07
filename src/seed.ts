@@ -24,6 +24,7 @@ async function bootstrap() {
     const connection = app.get<Connection>('DatabaseConnection');
     const orderCollection = connection.collection('orders');
     const userCollection = connection.collection('users');
+    const productCollection = connection.collection('products');
 
     console.log('🌱 Starting Seeding...');
 
@@ -174,29 +175,130 @@ async function bootstrap() {
 
     // ── 4. Seed Products ──
     const products = [
-        { name: 'Whey Protein Powder', description: 'Premium whey protein isolate, 25g per serving.', price: 49.99, category: 'supplements', stock: 120, sku: 'SUP-001', images: ['https://images.unsplash.com/photo-1579722821273-0f6c7d44362f?w=600'] },
-        { name: 'Creatine Monohydrate', description: 'Micronized creatine for strength and recovery.', price: 29.99, salePrice: 24.99, category: 'supplements', stock: 200, sku: 'SUP-002', images: ['https://images.unsplash.com/photo-1616803689943-5601631c7fec?w=600'] },
-        { name: 'Resistance Bands Set', description: 'Set of 5 resistance bands with varying tension.', price: 34.99, category: 'equipment', stock: 85, sku: 'EQP-001', images: ['https://images.unsplash.com/photo-1598289431512-b97b0917affc?w=600'] },
-        { name: 'Adjustable Dumbbells', description: 'Adjustable dumbbells 5-52.5 lbs per hand.', price: 299.99, salePrice: 249.99, category: 'equipment', stock: 30, sku: 'EQP-002', images: ['https://images.unsplash.com/photo-1638536532686-d610adfc8e5c?w=600'] },
-        { name: 'Yoga Mat Premium', description: 'Extra thick non-slip yoga mat.', price: 39.99, category: 'equipment', stock: 150, sku: 'EQP-003', images: ['https://images.unsplash.com/photo-1601925260368-ae2f83cf8b7f?w=600'] },
-        { name: 'Performance T-Shirt', description: 'Moisture-wicking workout t-shirt.', price: 29.99, category: 'apparel', stock: 300, sku: 'APP-001', images: ['https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=600'] },
-        { name: 'Compression Leggings', description: 'High-waist compression leggings.', price: 44.99, category: 'apparel', stock: 180, sku: 'APP-002', images: ['https://images.unsplash.com/photo-1506629082955-511b1aa562c8?w=600'] },
-        { name: 'Shaker Bottle', description: 'BPA-free protein shaker bottle 28oz.', price: 12.99, category: 'accessories', stock: 500, sku: 'ACC-001', images: ['https://images.unsplash.com/photo-1556228578-0d85b1a4d571?w=600'] },
-        { name: 'Lifting Gloves', description: 'Padded weight lifting gloves.', price: 19.99, category: 'accessories', stock: 200, sku: 'ACC-002', images: ['https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?w=600'] },
-        { name: 'Pre-Workout Energy', description: 'High caffeine pre-workout formula.', price: 39.99, salePrice: 34.99, category: 'supplements', stock: 95, sku: 'SUP-003', images: ['https://images.unsplash.com/photo-1546483875-ad9014c88eba?w=600'] },
+        {
+            name: 'ISO-Pure Whey Isolate',
+            sku: 'SUP-001',
+            description: '100% Cross-flow microfiltered cold-processed whey isolate. 27g protein per scoop with zero added sugars.',
+            price: 64.99,
+            salePrice: 54.99,
+            category: 'supplements',
+            stock: 120,
+            averageRating: 4.9,
+            reviewCount: 142,
+            images: ['https://images.unsplash.com/photo-1579722821273-0f6c7d44362f?auto=format&fit=crop&q=80&w=800'],
+            flavors: ['Double Rich Chocolate', 'Madagascar Vanilla', 'Salted Caramel Crunch'],
+            specifications: { Servings: '30', Protein: '27g', BCAAs: '6.2g' },
+        },
+        {
+            name: 'NeuroDrive Pre-Workout Igniter',
+            sku: 'SUP-003',
+            description: 'Clinical dose citrulline, beta-alanine, and alpha-GPC for laser tunnel focus, vascularity, and boundless power.',
+            price: 49.99,
+            salePrice: 42.99,
+            category: 'supplements',
+            stock: 95,
+            averageRating: 4.8,
+            reviewCount: 98,
+            images: ['https://images.unsplash.com/photo-1584017911766-d451b3d0e843?auto=format&fit=crop&q=80&w=800'],
+            flavors: ['Electric Lime Rush', 'Blue Raspberry Blast', 'Watermelon Surge'],
+            specifications: { Servings: '40', Caffeine: '300mg', Citrulline: '8000mg' },
+        },
+        {
+            name: 'Heavy Duty 10mm Lever Lifting Belt',
+            sku: 'EQP-001',
+            description: 'Competition grade top-grain leather with hardened alloy matte black quick-release lever mechanism.',
+            price: 119.99,
+            salePrice: 99.99,
+            category: 'equipment',
+            stock: 42,
+            averageRating: 5.0,
+            reviewCount: 76,
+            images: ['https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&q=80&w=800'],
+            sizes: ['Small (28-32")', 'Medium (32-36")', 'Large (36-40")', 'XL (40-44")'],
+            specifications: { Thickness: '10mm', Material: 'Vegetable-tanned Leather' },
+        },
+        {
+            name: 'Seamless Compression Tech Tee',
+            sku: 'APP-001',
+            description: 'Ultra-breathable 4-way stretch fabric engineered to keep you cool, dry, and mobile during heavy reps.',
+            price: 38.00,
+            salePrice: 32.00,
+            category: 'apparel',
+            stock: 64,
+            averageRating: 4.7,
+            reviewCount: 51,
+            images: ['https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&q=80&w=800'],
+            sizes: ['S', 'M', 'L', 'XL', '2XL'],
+            specifications: { Fit: 'Athletic Tapered', Fabric: 'Polyester / Elastane' },
+        },
+        {
+            name: 'SmartCoach Insulated Steel Shaker (800ml)',
+            sku: 'ACC-001',
+            description: 'Double-wall vacuum insulated stainless steel shaker with built-in silent agitator and leak-proof spout.',
+            price: 28.00,
+            salePrice: 22.50,
+            category: 'accessories',
+            stock: 150,
+            averageRating: 4.9,
+            reviewCount: 88,
+            images: ['https://images.unsplash.com/photo-1544816155-12df9643f363?auto=format&fit=crop&q=80&w=800'],
+            specifications: { Capacity: '800ml', Material: '18/8 Food Grade Steel' },
+        },
+        {
+            name: 'Heavy Resistance Band Set (5-Pack)',
+            sku: 'EQP-002',
+            description: '100% Malaysian latex loop bands ranging from 15 lbs to 150 lbs of tension for warming up and resistance work.',
+            price: 34.99,
+            salePrice: 29.99,
+            category: 'equipment',
+            stock: 85,
+            averageRating: 4.8,
+            reviewCount: 64,
+            images: ['https://images.unsplash.com/photo-1598289431512-b97b0917affc?auto=format&fit=crop&q=80&w=800'],
+            specifications: { Resistance: '15 - 150 lbs', Material: '100% Malaysian Latex' },
+        },
+        {
+            name: 'Creatine Monohydrate Micronized',
+            sku: 'SUP-002',
+            description: 'Micronized creatine monohydrate for explosive power, ATP replenishment, and cellular hydration.',
+            price: 29.99,
+            salePrice: 24.99,
+            category: 'supplements',
+            stock: 200,
+            averageRating: 4.9,
+            reviewCount: 115,
+            images: ['https://images.unsplash.com/photo-1616803689943-5601631c7fec?auto=format&fit=crop&q=80&w=800'],
+            specifications: { Servings: '100', Dose: '5g Pure Creapure' },
+        },
+        {
+            name: 'Adjustable Quick-Lock Dumbbells (50 lbs)',
+            sku: 'EQP-003',
+            description: 'Commercial-grade fast selector adjustable dumbbell system replacing 10 pairs of traditional dumbbells.',
+            price: 299.99,
+            salePrice: 249.99,
+            category: 'equipment',
+            stock: 30,
+            averageRating: 4.9,
+            reviewCount: 42,
+            images: ['https://images.unsplash.com/photo-1638536532686-d610adfc8e5c?auto=format&fit=crop&q=80&w=800'],
+            specifications: { Range: '5 - 50 lbs per hand', Increment: '2.5 / 5 lbs' },
+        },
     ];
 
     const productIds: string[] = [];
     for (const p of products) {
-        // Check by name since ProductsService doesn't have findByTitle
-        const existing = await productsService.findAll({ search: p.name });
-        if (!existing || existing.length === 0) {
+        const existing = await productCollection.findOne({ $or: [{ sku: p.sku }, { name: p.name }] });
+        if (!existing) {
             const created = await productsService.create(p as any);
             productIds.push((created as any)._id.toString());
             console.log(`✅ Product "${p.name}" created`);
         } else {
-            productIds.push((existing[0] as any)._id.toString());
-            console.log(`⏩ Product "${p.name}" exists`);
+            await productCollection.updateOne(
+                { _id: existing._id },
+                { $set: p }
+            );
+            productIds.push(existing._id.toString());
+            console.log(`✅ Product "${p.name}" updated`);
         }
     }
 
@@ -493,18 +595,17 @@ async function bootstrap() {
         }
     }
 
-    // ── 9. Update images for existing records ──
-    const productCollection = connection.collection('products');
+    // ── 9. Update images and catalog specs for existing records ──
     const workoutCollection = connection.collection('freeworkouts');
     const nutritionCollection = connection.collection('freenutritions');
 
     for (const p of products) {
         await productCollection.updateOne(
-            { name: p.name },
-            { $set: { images: (p as any).images } },
+            { $or: [{ sku: p.sku }, { name: p.name }] },
+            { $set: p },
         );
     }
-    console.log('✅ Product images updated');
+    console.log('✅ Products updated with full catalog specs');
 
     for (const w of workouts) {
         await workoutCollection.updateOne(
